@@ -8,3 +8,6 @@ __pycache__/
 
 # Archivos de macOS
 .DS_Store
+
+# Configs de VSCode
+.vscode/
