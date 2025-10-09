@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Administrar Clientes</title>
+  <link rel="stylesheet" href="style_crudUsuarios.css">
+  <script type="module" src="/js/crudCliente.js"></script>
+</head>
+<body>
+  <header class="cajaHeaders">
+    <h1>Gestión de Clientes</h1>
+    <p id="adminSaludo"></p>
+  </header>
+
+  <main>
+    <section class="listas">
+      <h2>Lista de Clientes</h2>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Empresa</th>
+            <th>Domicilio</th>
+            <th>Cod. Postal</th>
+            <th>Localidad</th>
+            <th>Provincia</th>
+            <th>Pais</th>
+            <th>Telefono</th>
+            <th>WhatsApp</th>
+            <th>Correo</th>
+            <th>Metodo aviso</th>
+            <th>Condicion IVA</th>
+            <th>Responsable</th>
+          </tr>
+        </thead>
+        <tbody id="clientesTabla"></tbody>
+      </table>
+    </section>
+
+
+    <section  class="cajaCrud">
+      <h2>Crear nuevo Cliente</h2>
+      <form id="crudForm">
+        <input type="hidden" id="clienteId" />
+        <input type="text" id="nombre" placeholder="Nombre" required minlength="5" maxlength="50" />
+        <input type="text" id="apellido" placeholder="Apellido" required />
+        <input type="text" id="empresa" placeholder="Empresa" required>
+        <input type="text" id="domicilio" placeholder="Domicilio" required>
+        <input type="number" id="codigo_postal" placeholder="Código Postal" required>
+        <input type="text" id="localidad" placeholder="Localidad" required>
+        <input type="text" id="provincia" placeholder="Provincia" required>
+        <input type="text" id="pais" placeholder="País" required />
+        <input type="text" id="telefono" placeholder="Teléfono" required>
+        <input type="tel" id="whatsapp" placeholder="WhatsApp" required>
+        <input type="email" id="correo" placeholder="Correo Electrónico" required />
+        <select id="metodo_aviso" required>
+          <option value="" disabled selected>Método de Aviso</option>
+          <option value="mail">Mail</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="ambos">Ambos</option>
+        </select>
+        <input type="text" id="condicion_iva" placeholder="Condición IVA">
+        <input type="text" id="responsable_id" placeholder="Responsable">
+
+        <button type="submit" id="btnCrear">Crear cliente</button>
+        <button type="button" id="btnActualizar" style="display: none;">Actualizar cliente</button>
+        <button type="button" id="btnEliminar" style="display: none;">Eliminar cliente</button>
+
+      </form>
+    </section>
+
+  </main>
+
+</body>
+</html>

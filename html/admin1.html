@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Administración</title>
+  <link rel="stylesheet" href="admin1.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2>Admin</h2>
+      <nav>
+        <ul>
+          <li id="inicio" class="active">Inicio</li>
+          <li id="btnClientes">Clientes</li>
+          <li id="btnServicios">Servicios</li>
+          <li id="facturacion">Facturación</li>
+          <li id="deudores">Deudores</li>
+          <li id="historial">Historial</li>
+          <li id="configuracion">Configuración</li>
+          <li id="logout">Salir</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <section id="inicio" class="section visible">
+        <h1>Bienvenido al Sistema</h1>
+        <p>Selecciona una opción del menú para comenzar.</p>
+      </section>
+
+      <section id="clientes" class="section">
+        <h1>Gestión de Clientes</h1>
+        <p>[Aquí irá el módulo de clientes]</p>
+      </section>
+
+      <section id="servicios" class="section">
+        <h1>Gestión de Servicios</h1>
+        <p>[Aquí irá el módulo de servicios]</p>
+      </section>
+
+      <section id="facturacion" class="section">
+        <h1>Facturación</h1>
+        <p>[Aquí irá el listado mensual y carga de pagos]</p>
+      </section>
+
+      <section id="deudores" class="section">
+        <h1>Deudores</h1>
+        <p>[Aquí irán los recordatorios de deuda y mora]</p>
+      </section>
+
+      <section id="historial" class="section">
+        <h1>Historial y Filtros</h1>
+        <p>[Aquí irá el historial de pagos y exportación]</p>
+      </section>
+
+      <section id="configuracion" class="section">
+        <h1>Configuración del Sistema</h1>
+        <p>[CBU, CVU, permisos, usuarios, etc.]</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

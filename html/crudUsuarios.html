@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Administrar Usuarios</title>
+  <link rel="stylesheet" href="style_crudUsuarios.css" />
+  <script type="module" src="/js/crudUsuarios.js"></script>
+</head>
+<body>
+  <header class="cajaHeaders">
+    <h1>Gestión de Usuarios</h1>
+    <p id="adminSaludo"></p>
+  </header>
+
+  <main>
+    <section class="cajaCrud">
+      <h2>Crear nuevo usuario</h2>
+      <form id="crudForm">
+
+        <input type="text" id="nombre" placeholder="Nombre" required minlength="2" maxlength="20" />
+        <input type="text" id="apellido" placeholder="Apellido" required minlength="2" maxlength="20" />
+        <input type="email" id="correo" placeholder="Correo electrónico" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+        <select id="rol" required>
+          <option value="" disabled selected>Seleccionar rol</option>
+          <option value="admin">Admin</option>
+          <option value="vendedor">Vendedor</option>
+        </select>
+        <button type="submit">Crear usuario</button>
+        <input type="hidden" id="usuarioId" />
+        <button type="button" id="btnActualizar" style="display:none;">Actualizar usuario</button>
+        <button type="button" id="btnEliminar" style="display:none;">Eliminar usuario</button>
+
+      </form>
+    </section>
+
+  
+    <section class="listas">
+      <h2>Lista de usuarios registrados</h2>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Correo</th>
+            <th>Rol</th>
+          </tr>
+        </thead>
+        <tbody id="usuariosTabla"></tbody>
+      </table>
+    </section>
+  </main>
+
+</body>
+</html>

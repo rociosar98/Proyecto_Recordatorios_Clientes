@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordatorio Clientes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="page-container">
+
+    <div class="login-container">
+      <h2>Iniciar Sesión</h2>
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+        <button type="submit">Ingresar</button>
+      </form>
+      <p id="loginError" class="error" style="display: none;"></p>
+    </div>
+  </div>
+  <script src="/js/authService.js" type="module"></script>
+  <script src="/js/main.js" type="module"></script>
+</body>
+</html>
+

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Administrar Servicios</title>
+  <link rel="stylesheet" href="style_crudUsuarios.css">
+  <script type="module" src="/js/crudServicios.js"></script>
+</head>
+<body>
+  <header class="cajaHeaders">
+    <h1>Gestión de Servicios</h1>
+    <p id="adminSaludo"></p>
+  </header>
+
+  <main>
+    <section  class="cajaCrud">
+      <h2>Crear nuevo servicio</h2>
+      <form id="crudForm">
+        <input type="text" id="nombre" placeholder="Nombre" required/>
+        <input type="number" id="precio" placeholder="Precio" required minlength="0"/>
+        <select id="tipo_pago" required>
+          <option value="" disabled selected>Tipo de pago</option>
+          <option value="recurrente">Recurrente</option>
+          <option value="pago_unico">Pago Unico</option>
+        </select>
+        <select id="recurrencia" required>
+          <option value="" disabled selected>Tipo de Recurrencia</option>
+          <option value="mensual">Mensual</option>
+          <option value="bimestral">Bimestral</option>
+          <option value="trimestral">Trimestral</option>
+          <option value="cuatrimestral">Cuatrimestral</option>
+          <option value="semestral">Semestral</option>
+          <option value="anual">Anual</option>
+        </select>
+        <select id="cuotas" required>
+          <option value="" disabled selected>Cuotas</option>
+          <option value="1">1</option>
+          <option value="3">3</option>
+          <option value="6">6</option>
+          <option value="12">12</option>
+        </select>
+        <button type="submit" id="btnCrear">Crear servicio</button>
+        <button type="button" id="btnActualizar" style="display: none;">Actualizar servicio</button>
+        <button type="button" id="btnEliminar" style="display: none;">Eliminar servicio</button>
+
+      </form>
+    </section>
+
+    <section class="listas">
+      <h2>Lista de servicios</h2>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Tipo</th>
+            <th>Recurrencia</th>
+            <th>Cuotas</th>
+          </tr>
+        </thead>
+        <tbody id="serviciosTabla"></tbody>
+      </table>
+    </section>
+  </main>
+
+</body>
+</html>

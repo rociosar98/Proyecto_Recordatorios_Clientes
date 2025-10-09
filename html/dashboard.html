@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Administración</title>
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2>Admin</h2>
+      <button id="inicio" class="active">Inicio</button>
+      <button id="btnClientes">Clientes</button>
+      <button id="btnServicios">Servicios</button>
+      <button id="facturacion">Facturación</button>
+      <button id="deudores">Deudores</button>
+      <button id="historial">Historial</button>
+      <button id="configuracion">Configuración</button>
+      <button id="logout">Salir</button>
+    </aside>
+
+    <main class="main-content">
+      <section id="section-inicio" class="section visible">
+        <h1>Bienvenido al Sistema</h1>
+        <p>Selecciona una opción del menú para comenzar.</p>
+      </section>
+
+      <section id="section-clientes" class="section">
+        <h1>Gestión de Clientes</h1>
+        <button type="button" data-action="crear" data-module="cliente">Crear Clientes</button>
+        <button type="button" data-action="actualizar" data-module="cliente">Actualizar Clientes</button>
+        <button type="button" data-action="eliminar" data-module="cliente">Eliminar Clientes</button>
+        <button type="button" data-action="ver" data-module="cliente">Ver Clientes</button>
+      </section>
+
+      <section id="section-servicios" class="section">
+        <h1>Gestión de Servicios</h1>
+        <p>Aquí irá el módulo de servicios.</p>
+        <button type="button" data-action="crear" data-module="servicio">Crear Servicios</button>
+        <button type="button" data-action="actualizar" data-module="servicio">Actualizar Servicios</button>
+        <button type="button" data-action="eliminar" data-module="servicio">Eliminar Servicios</button>
+        <button type="button" data-action="ver" data-module="servicio">Ver Servicios</button>
+      </section>
+
+      <!-- Agrega más secciones si necesitás -->
+    </main>
+  </div>
+
+  <script src="/js/dash.js"></script>
+</body>
+</html>
