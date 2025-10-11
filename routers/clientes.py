@@ -41,7 +41,7 @@ def create_clientes(cliente: Clientes, db = Depends(get_database_session)) -> di
 def update_cliente(id: int, cliente: Clientes, db = Depends(get_database_session))-> dict:
     result = ClientesService(db).get_cliente_id(id)
     if not result:
-        return JSONResponse(status_code=404, content={'message': "No se encontró el cliente"})
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró el cliente")
     
     ClientesService(db).update_cliente(id, cliente)
     return JSONResponse(status_code=200, content={"message": "Se modifico el cliente"})
@@ -56,8 +56,9 @@ def update_cliente(id: int, cliente: Clientes, db = Depends(get_database_session
 
 @clientes_router.delete('/clientes/{id}', tags=['Clientes'], response_model=dict, status_code=200, dependencies=[Depends(JWTBearer())])
 def delete_cliente(id: int, db: Session = Depends(get_database_session)) -> dict:
-    try:
-        ClientesService(db).delete_cliente(id)
-        return {"message": "Cliente dado de baja"}
-    except ValueError as e:
-        return JSONResponse(status_code=404, content={"message": str(e)})
+    result = ClientesService(db).get_cliente_id(id)
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró el cliente")
+    ClientesService(db).delete_cliente(id)
+    return JSONResponse(status_code=200, content={"message": "Cliente dado de bajo"})
+    

@@ -70,7 +70,7 @@ class HistorialService:
     #    return [s.to_dict() for s in resultados]  # Asumiendo que tienes método to_dict()
     
 
-    def listar_por_filtros(self, fecha: date, condicion_iva: Optional[str], responsable_cuenta: Optional[str]):
+    def listar_por_filtros(self, condicion_iva: Optional[str], responsable_cuenta: Optional[str]):
         query = (
             self.db.query(PagosModel)
             .join(ServiciosClienteModel, PagosModel.servicio_cliente_id == ServiciosClienteModel.id)

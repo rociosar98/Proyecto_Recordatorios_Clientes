@@ -11,14 +11,14 @@ from schemas.datos_empresa import DatosEmpresa
 
 from passlib.context import CryptContext
 from utils.jwt_manager import create_token
-from utils.dependencies import get_current_user
+from utils.dependencies import get_current_user, admin_required
 
 from services.empresa import EmpresaService
 
 
 empresa_router = APIRouter(prefix="/empresa", tags=["Empresa"])
 
-@empresa_router.get("", response_model=DatosEmpresa)
+@empresa_router.get("", response_model=DatosEmpresa, status_code=status.HTTP_200_OK)
 def obtener_datos_empresa(db: Session = Depends(get_database_session)):
     service = EmpresaService(db)
     datos = service.get_datos_empresa()
@@ -26,11 +26,8 @@ def obtener_datos_empresa(db: Session = Depends(get_database_session)):
         raise HTTPException(status_code=404, detail="Datos de empresa no configurados")
     return datos
 
-@empresa_router.post("", response_model=DatosEmpresa, status_code=200)
-def crear_o_actualizar_datos_empresa(data: DatosEmpresa, db: Session = Depends(get_database_session),
-    usuario_actual = Depends(get_current_user)) -> dict:
-    if usuario_actual.rol != "admin":
-        raise HTTPException(status_code=403, detail="Solo los administradores pueden acceder")
+@empresa_router.post("", response_model=DatosEmpresa, status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
+def crear_o_actualizar_datos_empresa(data: DatosEmpresa, db: Session = Depends(get_database_session)) -> dict:
     service = EmpresaService(db)
     datos = service.update_datos_empresa(data)
     return datos

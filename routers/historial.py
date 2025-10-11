@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import date
 from database import get_database_session 
+from utils.dependencies import get_current_user, admin_required
 from services.historial import HistorialService
 
 from schemas.pagos import PagoOut  # Asegúrate de tener un esquema que refleje los datos que quieres retornar
@@ -11,7 +12,7 @@ from models.servicios import ServiciosCliente as ServiciosClienteModel
 
 historial_router = APIRouter()
 
-@historial_router.get('/historial/{cliente_id}', tags=['Historial'], response_model=List[PagoOut])
+@historial_router.get('/historial/{cliente_id}', tags=['Historial'], response_model=List[PagoOut], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def historial_pagos(cliente_id: int, db: Session = Depends(get_database_session)):
     pagos = HistorialService(db).obtener_historial(cliente_id)
     if not pagos:
@@ -20,7 +21,7 @@ def historial_pagos(cliente_id: int, db: Session = Depends(get_database_session)
     #return HistorialService(db).obtener_historial(cliente_id)
 
 
-@historial_router.get('/listado-mensual', tags=['Historial'])
+@historial_router.get('/listado-mensual', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def listado_mensual(
     #fecha: date,
     condicion_iva: Optional[str] = None,
@@ -29,7 +30,7 @@ def listado_mensual(
 ):
     return HistorialService(db).listar_por_filtros(condicion_iva, responsable_cuenta)
 
-@historial_router.get('/listado-entradas', tags=['Historial'])
+@historial_router.get('/listado-entradas', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def listado_entradas(
     periodo: Optional[str] = None,  # 'mensual', 'anual', None
     anio: Optional[int] = None,

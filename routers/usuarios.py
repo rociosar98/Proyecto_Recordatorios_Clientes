@@ -11,7 +11,7 @@ from passlib.context import CryptContext
 from utils.jwt_manager import create_token
 from schemas.usuarios import User, UsuarioBase, Usuarios, UsuarioPublico, UsuarioPermiso
 from sqlalchemy.orm import Session
-from utils.dependencies import get_current_user
+from utils.dependencies import get_current_user, admin_required
 
 usuarios_router = APIRouter()
 
@@ -54,10 +54,8 @@ def login(user: User, db=Depends(get_database_session)):
         })
         return JSONResponse(status_code=200, content={'accesoOk': True,'token':token, 'usuario': jsonable_encoder(usuario) })   
     
-@usuarios_router.get("/usuarios", tags=['Usuarios'], response_model=List[UsuarioPublico], status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])
-def get_usuarios(db: Session = Depends(get_database_session),usuario_actual = Depends(get_current_user)):
-    if usuario_actual.rol != "admin":
-        raise HTTPException(status_code=403, detail="Solo los administradores pueden acceder")
+@usuarios_router.get("/usuarios", tags=['Usuarios'], response_model=List[UsuarioPublico], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
+def get_usuarios(db: Session = Depends(get_database_session)):
     return UsuariosService(db).get_usuarios()
 
 #@usuarios_router.get("/usuarios", tags=["Usuarios"], status_code=status.HTTP_200_OK,
@@ -68,57 +66,45 @@ def get_usuarios(db: Session = Depends(get_database_session),usuario_actual = De
 
 
 @usuarios_router.get('/usuarios/{id}', tags=['Usuarios'], response_model=UsuarioPublico,
-                     status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])
+                     status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def get_usuario_id(id: int = Path(ge=1, le=2000), db=Depends(get_database_session)):
     result = UsuariosService(db).get_usuario_id(id)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
     return result
 
-@usuarios_router.post('/usuarios', tags=['Usuarios'], response_model=dict, status_code=status.HTTP_201_CREATED)
-def create_usuarios(usuario: Usuarios,db: Session = Depends(get_database_session),
-    usuario_actual = Depends(get_current_user)  # validación de token y usuario actual
-) -> dict:
-    if usuario_actual.rol != "admin":
-        raise HTTPException(status_code=403, detail="Solo los administradores pueden crear usuarios")
+@usuarios_router.post('/usuarios', tags=['Usuarios'], response_model=dict, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_required)])
+def create_usuarios(usuario: Usuarios,db: Session = Depends(get_database_session)) -> dict:
+     # validación de token y usuario actual
     usuario.password = get_password_hash(usuario.password)
     UsuariosService(db).create_usuarios(usuario)
     return JSONResponse(status_code=201, content={"message": "Se ha registrado el usuario"})
 
 
-@usuarios_router.put('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(JWTBearer())])
-def update_usuarios(id: int, usuarios: Usuarios, db = Depends(get_database_session),
-    usuario_actual = Depends(get_current_user)) -> dict:
-    if usuario_actual.rol != "admin":
-        raise HTTPException(status_code=403, detail="Solo los administradores pueden modificar usuarios")
+@usuarios_router.put('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
+def update_usuarios(id: int, usuarios: Usuarios, db = Depends(get_database_session)) -> dict:
     result = UsuariosService(db).get_usuario_id(id)
     if not result:
-        return JSONResponse(status_code=404, content={'message': "No se encontro el usuario"})
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
     usuarios.password = get_password_hash(usuarios.password)
     UsuariosService(db).update_usuarios(id, usuarios)
     return JSONResponse(status_code=200, content={"message": "Se ha modificado el usuario"})
 
 
-@usuarios_router.delete('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200)
-def delete_usuarios(id: int, db = Depends(get_database_session),
-    usuario_actual = Depends(get_current_user)) -> dict:
-    if usuario_actual.rol != "admin":
-        raise HTTPException(status_code=403, detail="Solo los administradores pueden eliminar usuarios")
+@usuarios_router.delete('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
+def delete_usuarios(id: int, db = Depends(get_database_session)) -> dict:
     result: UsuarioModel = db.query(UsuarioModel).filter(UsuarioModel.id == id).first()
     if not result:
-        return JSONResponse(status_code=404, content={"message": "No se encontro el usuario"})
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
     UsuariosService(db).delete_usuarios(id)
     return JSONResponse(status_code=200, content={"message": "Se elimino el usuario"})
 
 
-@usuarios_router.put('/usuarios/{id}/permiso', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(JWTBearer())])
-def otorgar_permiso(id: int, usuarios: UsuarioPermiso, db = Depends(get_database_session),
-    usuario_actual = Depends(get_current_user)) -> dict:
-    if usuario_actual.rol != "admin":
-        raise HTTPException(status_code=403, detail="Solo los administradores pueden otorgar permisos")
+@usuarios_router.put('/usuarios/{id}/permiso', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
+def otorgar_permiso(id: int, usuarios: UsuarioPermiso, db = Depends(get_database_session)) -> dict:
     usuario = UsuariosService(db).get_usuario_id(id)
     if not usuario:
-        return JSONResponse(status_code=404, content={'message': "No se encontro el usuario"})
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
     UsuariosService(db).otorgar_permiso_usuario(id, usuarios)
     return JSONResponse(status_code=200, content={"message": "Permiso actualizado correctamente"})
 
