@@ -13,11 +13,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const recurrencia = document.getElementById("recurrencia");
     const cuotas = document.getElementById("cuotas");
 
-    let servicioSeleccionadoId = null; //Guarda el ID del destino seleccionado para editar o eliminar. Está vacío al inicio.
+    let servicioSeleccionadoId = null; //Guarda el ID del servicio seleccionado para editar o eliminar. Está vacío al inicio.
 
     if (usuario) {
     saludo.textContent = `Hola admin ${usuario.nombre} ${usuario.apellido} 👋`;
-    } //Si hay usuario cargado en sesión, muestra un saludo personalizado en la página.
+    }
 
     // Lógica para habilitar/deshabilitar campos según tipo de servicio
     tipoServicio.addEventListener("change", function () {
@@ -65,21 +65,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             <td>${s.tipo}</td>
             <td>${s.recurrencia}</td>
             <td>${s.cuotas}</td>
-            </tr>`; //Por cada destino, agrega una nueva fila (<tr>) a la tabla HTML
-            // ¿Por qué += y no solo =? Porque ya limpiaste antes la tabla con tabla.innerHTML = "", y ahora estás sumando una fila por cada destino, una tras otra.
-            // Recorre cada destino (d) y crea una fila en la tabla con sus datos. Usa data-id para guardar el ID del destino.
+            </tr>`;
         }); 
 
-        document.querySelectorAll("#serviciosTabla tr").forEach(row => { //Después de llenar la tabla, esta línea selecciona todas las filas (<tr>) que estén dentro del elemento con id destinosTabla, y las recorre una por una.
-        row.addEventListener("click", () => { //A cada fila le agrega un evento click. O sea, cuando el usuario hace clic en una fila de la tabla, se ejecuta la función de abajo
-            const id = row.getAttribute("data-id"); //Toma el atributo data-id que habías puesto antes en la fila (con el id del destino) y lo guarda en una variable.
+        document.querySelectorAll("#serviciosTabla tr").forEach(row => { //Después de llenar la tabla, esta línea selecciona todas las filas (<tr>) que estén dentro del elemento con id serviciosTabla, y las recorre una por una.
+        row.addEventListener("click", () => { //A cada fila le agrega un evento click. O sea, cuando el usuario hace clic en una fila de la tabla
+            const id = row.getAttribute("data-id"); //Toma el atributo data-id que habías puesto antes en la fila y lo guarda en una variable.
             seleccionarServicio(id);
         });
         });
 
     } catch (err) {
         alert("Error: " + err.message);
-    } // Agrega un evento click a cada fila para que, al hacer clic, se llame a seleccionarDestino(id) con el ID correspondiente.
+    } // Agrega un evento click a cada fila para que, al hacer clic, se llame a seleccionarServicio(id) con el ID correspondiente.
     } 
 
     await cargarServicios();
@@ -102,9 +100,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("cuotas").value = servicio.cuotas;
         // Rellena los campos del formulario HTML con los datos del destino seleccionado, para que el usuario pueda editarlos.
 
-        tipoServicio.dispatchEvent(new Event("change")); // ⚠️ Dispara el cambio para activar/desactivar campos
+        tipoServicio.dispatchEvent(new Event("change")); // Dispara el cambio para activar/desactivar campos
 
-        servicioSeleccionadoId = id; //Guarda el id del destino en una variable global.
+        servicioSeleccionadoId = id;
 
         btnCrear.style.display = "none";
         btnActualizar.style.display = "inline";
@@ -114,13 +112,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert("Error: " + err.message);
     }
     }
-    // Crea un nuevo destino (cuando el formulario se envía)
+    
     form.addEventListener("submit", async (e) => {
     e.preventDefault(); //Evita que el formulario haga su comportamiento por defecto (recargar la página o enviar datos de forma tradicional).
-    // Al enviar el formulario, previene el comportamiento por defecto y se asegura de que no haya un destino seleccionado (porque en ese caso se actualizaría, no se crearía uno nuevo).
+    // Al enviar el formulario, previene el comportamiento por defecto y se asegura de que no haya un servicio seleccionado (porque en ese caso se actualizaría, no se crearía uno nuevo).
 
-    if (servicioSeleccionadoId) return; //Si destinoSeleccionadoId tiene un valor, significa que estamos en modo edición y no deberíamos crear un destino nuevo. En ese caso, sale de la función y no hace nada.
-    // Si estamos creando un nuevo destino, destinoSeleccionadoId estará en null, y entonces sí seguimos.
+    if (servicioSeleccionadoId) return;
 
     const nuevoServicio = {
         nombre: document.getElementById("nombre").value,
@@ -138,7 +135,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}` //Se pasan los headers necesarios: tipo de contenido y token de autenticación.
         },
-        body: JSON.stringify(nuevoServicio) // Se convierte el objeto JS (nuevoDestino) a texto JSON con JSON.stringify().
+        body: JSON.stringify(nuevoServicio) // Se convierte el objeto JS (nuevoServicio) a texto JSON con JSON.stringify().
         }); 
 
         if (!res.ok) throw new Error("Error al crear servicio");
@@ -148,11 +145,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         await cargarServicios();
     } catch (err) {
         alert("Error: " + err.message);
-    } // Envía los datos al backend para crear el nuevo destino. Si todo sale bien, muestra mensaje, limpia el form y recarga la tabla.
+    } // Envía los datos al backend para crear el nuevo servicio. Si todo sale bien, muestra mensaje, limpia el form y recarga la tabla.
     });
 
     btnActualizar.addEventListener("click", async () => {
-    if (!servicioSeleccionadoId) return; //Si no hay destino seleccionado, se sale de la funcion
+    if (!servicioSeleccionadoId) return; //Si no hay servicio seleccionado, se sale de la funcion
 
     const servicioActualizado = {
         nombre: document.getElementById("nombre").value,
@@ -163,7 +160,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         cuotas: cuotas.disabled ? null : parseInt(document.getElementById("cuotas").value) || null,
 
         activo: true
-    }; //Se toma la información actual del formulario y se construye un objeto con los datos nuevos o modificados del destino.
+    }; //Se toma la información actual del formulario y se construye un objeto con los datos nuevos o modificados del servicio.
 
     console.log("Payload de actualización:", servicioActualizado);
 
@@ -191,13 +188,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         await cargarServicios();
     } catch (err) {
         alert("Error: " + err.message);
-    } //Envía una petición PUT para actualizar el destino. Si todo sale bien, muestra mensaje, limpia el formulario y actualiza la tabla.
+    }
     });
 
     btnEliminar.addEventListener("click", async () => {
     if (!servicioSeleccionadoId) return;
 
-    if (!confirm("¿Estás seguro de eliminar este servicio?")) return; //Si no hay destino seleccionado o el usuario no confirma, no hace nada.
+    if (!confirm("¿Estás seguro de eliminar este servicio?")) return; //Si no hay servicio seleccionado o el usuario no confirma, no hace nada.
 
     try {
         const res = await fetch(`http://localhost:8000/servicios/${servicioSeleccionadoId}`, {

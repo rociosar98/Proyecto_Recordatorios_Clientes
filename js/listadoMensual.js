@@ -75,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Eventos
   btnBuscar.addEventListener("click", cargarListado);
 
   // Cargar al inicio

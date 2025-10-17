@@ -43,7 +43,7 @@ buttons.forEach(btn => {
   });
 });
 
-// 🚀 Nuevo: Manejo dinámico de los botones CRUD
+// Manejo dinámico de los botones CRUD
 document.querySelectorAll("[data-action][data-module]").forEach(button => {
   button.addEventListener("click", () => {
     const accion = button.dataset.action;
