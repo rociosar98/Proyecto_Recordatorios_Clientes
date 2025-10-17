@@ -30,6 +30,15 @@ class UsuarioPublico(BaseModel): # este modelo se usa en respuestas de endpoints
     class Config:
         from_attributes = True
 
+
+class UsuarioUpdate(BaseModel):
+    nombre: Optional[str]
+    apellido: Optional[str]
+    correo: Optional[EmailStr]
+    rol: Optional[str]
+    password: Optional[str]
+
+
 class UsuarioMini(BaseModel):
     nombre: str
     apellido: str

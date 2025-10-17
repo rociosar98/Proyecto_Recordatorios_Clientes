@@ -21,6 +21,18 @@ class PagoOut(BaseModel):
         from_attributes = True
 
 
+class HistorialPagoOut(BaseModel):
+    monto: float
+    fecha_facturacion: date
+    fecha_pago: Optional[date]
+    estado: str
+    cliente: str
+    servicio: str
+
+    class Config:
+        from_attributes = True
+
+
 class ResumenPagoOut(BaseModel):
     servicio_cliente_id: int
     cliente_nombre: str

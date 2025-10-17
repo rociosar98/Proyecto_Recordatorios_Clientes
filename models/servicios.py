@@ -13,7 +13,7 @@ class Servicios(Base):
     tipo = Column(Enum(TipoServicio, name="tipo_servicio"), nullable=False)
     precio = Column(Float, nullable=False)
     recurrencia = Column(Enum(Recurrencia, name="recurrencia_servicio"), nullable=True)
-    cuotas_permitidas = Column(Boolean, default=False)  # Solo aplica para pago único
+    cuotas = Column(Boolean, default=False)  # Solo aplica para pago único
     activo = Column(Boolean, default=True)
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
 

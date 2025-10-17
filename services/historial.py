@@ -17,16 +17,44 @@ class HistorialService:
     #def __init__(self, db: Session):
     #    self.db = db
 
-    def obtener_historial(self, cliente_id: int):
-        pagos = (
+    def obtener_historial(self, cliente_id: Optional[int] = None):
+        query = (
             self.db.query(PagosModel)
             .join(ServiciosClienteModel)
-            .filter(ServiciosClienteModel.cliente_id == cliente_id)
-            .order_by(PagosModel.fecha_facturacion.desc())
-            #.filter(PagosModel.servicio_cliente_id == servicio_cliente_id)
-            .all()
+            .options(
+                joinedload(PagosModel.servicio_cliente).joinedload(ServiciosClienteModel.cliente),
+                joinedload(PagosModel.servicio_cliente).joinedload(ServiciosClienteModel.servicio)
+            )
         )
-        return pagos
+
+        if cliente_id:
+            query = query.filter(ServiciosClienteModel.cliente_id == cliente_id)
+
+        pagos = query.all()
+
+        resultado = []
+        for pago in pagos:
+            resultado.append({
+                "monto": pago.monto,
+                "fecha_facturacion": pago.fecha_facturacion,
+                "fecha_pago": pago.fecha_pago,
+                "estado": pago.estado.value,
+                "cliente": pago.servicio_cliente.cliente.nombre,
+                "servicio": pago.servicio_cliente.servicio.nombre
+            })
+
+        return resultado
+
+
+        #pagos = (
+        #    self.db.query(PagosModel)
+        #    .join(ServiciosClienteModel)
+        #    .filter(ServiciosClienteModel.cliente_id == cliente_id)
+        #    .order_by(PagosModel.fecha_facturacion.desc())
+            #.filter(PagosModel.servicio_cliente_id == servicio_cliente_id)
+        #    .all()
+        #)
+        #return pagos
     
 
     #def obtener_historial(self, cliente_id: int):
@@ -81,12 +109,10 @@ class HistorialService:
             query = query.filter(ClientesModel.condicion_iva == condicion_iva)
 
         if responsable_cuenta:
-            # Si tienes el responsable como ID, asegúrate de pasar int
             query = query.filter(ClientesModel.responsable_id == responsable_cuenta)
 
         pagos = query.all()
 
-        # Convierte a lista de dicts o usa Pydantic
         resultados = []
         for pago in pagos:
             resultados.append({

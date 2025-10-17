@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historial de Pagos</title>
+  <link rel="stylesheet" href="historial.css" />
+  <script type="module" src="/js/historial.js"></script>
+</head>
+<body>
+  <main class="container">
+    <h1>📜 Historial de Pagos</h1>
+
+    <div class="filtros">
+      <label for="filtroCliente">Filtrar por Cliente:</label>
+      <input type="text" id="filtroCliente" placeholder="Ej: Juan Pérez" />
+
+      <label for="filtroFecha">Filtrar por Fecha:</label>
+      <input type="month" id="filtroFecha" />
+
+      <label for="filtroEstado">Estado:</label>
+      <select id="filtroEstado">
+        <option value="">Todos</option>
+        <option value="pagado">Pagado</option>
+        <option value="parcial">Parcial</option>
+        <option value="pendiente">Pendiente</option>
+      </select>
+
+      <button id="btnBuscar">Buscar</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th>Monto</th>
+          <th>Fecha de Facturación</th>
+          <th>Fecha de Pago</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tablaHistorial">
+        <!-- Acá se inyectan dinámicamente los datos con JS -->
+      </tbody>
+    </table>
+
+    <p id="mensajeVacio" class="mensaje-vacio">No hay registros para mostrar.</p>
+  </main>
+</body>
+</html>

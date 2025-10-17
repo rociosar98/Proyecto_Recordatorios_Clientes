@@ -9,9 +9,11 @@ from middlewares.jwt_bearer import JWTBearer
 from services.usuarios import UsuariosService
 from passlib.context import CryptContext
 from utils.jwt_manager import create_token
-from schemas.usuarios import User, UsuarioBase, Usuarios, UsuarioPublico, UsuarioPermiso
+from schemas.usuarios import User, UsuarioBase, Usuarios, UsuarioPublico, UsuarioUpdate,UsuarioPermiso
 from sqlalchemy.orm import Session
 from utils.dependencies import get_current_user, admin_required
+from utils.security import get_password_hash, verify_password
+
 
 usuarios_router = APIRouter()
 
@@ -26,16 +28,16 @@ def authenticate_user(users:dict, email: str, password: str)->UsuarioPublico:
     user = UsuarioPublico.from_orm(user)
     return user
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
+#def get_password_hash(password):
+#    return pwd_context.hash(password)
 
 def get_user(users:list, email: str):
     for item in users:
         if item.correo == email:
             return item
         
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password) 
+#def verify_password(plain_password, hashed_password):
+#    return pwd_context.verify(plain_password, hashed_password) 
 
 @usuarios_router.post('/login', tags=['Autenticacion'])
 def login(user: User, db=Depends(get_database_session)):
@@ -82,13 +84,23 @@ def create_usuarios(usuario: Usuarios,db: Session = Depends(get_database_session
 
 
 @usuarios_router.put('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
-def update_usuarios(id: int, usuarios: Usuarios, db = Depends(get_database_session)) -> dict:
+def update_usuarios(id: int, usuarios: UsuarioUpdate, db = Depends(get_database_session)) -> dict:
     result = UsuariosService(db).get_usuario_id(id)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
     usuarios.password = get_password_hash(usuarios.password)
     UsuariosService(db).update_usuarios(id, usuarios)
     return JSONResponse(status_code=200, content={"message": "Se ha modificado el usuario"})
+
+
+@usuarios_router.put('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
+def update_usuarios(id: int, usuarios: UsuarioUpdate, db = Depends(get_database_session)) -> dict:
+    result = UsuariosService(db).get_usuario_id(id)
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
+    UsuariosService(db).update_usuarios(id, usuarios)
+    return JSONResponse(status_code=200, content={"message": "Se ha modificado el usuario"})
+
 
 
 @usuarios_router.delete('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])

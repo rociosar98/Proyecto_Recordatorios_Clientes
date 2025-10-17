@@ -9,7 +9,7 @@ class Servicios(BaseModel):
     precio: float
     recurrencia: Optional[Recurrencia] = None
     #cuotas_permitidas: bool = False
-    cuotas_permitidas: Optional[bool] = False
+    cuotas: Optional[bool] = False
     activo: Optional[bool] = True
 
     @model_validator(mode="after")
@@ -31,7 +31,7 @@ class ServicioRespuesta(BaseModel):
     tipo: TipoServicio
     precio: float
     recurrencia: Optional[Recurrencia] = None
-    cuotas_permitidas: Optional[bool] = False
+    cuotas: Optional[bool] = False
     activo: Optional[bool] = True
     
     class Config:

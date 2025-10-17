@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Listado Mensual</title>
+  <link rel="stylesheet" href="listadoMensual.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Listado Mensual</h1>
+
+    <div class="filtros">
+      <label for="filtroIVA">Condición frente al IVA:</label>
+      <select id="filtroIVA">
+        <option value="">Todos</option>
+        <option value="Responsable Inscripto">Responsable Inscripto</option>
+        <option value="Monotributista">Monotributista</option>
+        <option value="Exento">Exento</option>
+        <!-- Agregá más según tu base de datos -->
+      </select>
+
+      <label for="filtroResponsable">Responsable de cuenta:</label>
+      <input type="text" id="filtroResponsable" placeholder="Nombre o ID..." />
+
+      <button id="btnBuscar">Buscar</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Condición IVA</th>
+          <th>Responsable</th>
+          <th>Servicio</th>
+          <th>Fecha Facturación</th>
+          <th>Fecha Pago</th>
+          <th>Monto</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tablaListado">
+        <!-- Filas dinámicas -->
+      </tbody>
+    </table>
+
+    <div id="mensajeVacio" style="display: none;">No se encontraron resultados.</div>
+  </div>
+
+  <script type="module" src="/js/listadoMensual.js"></script>
+</body>
+</html>

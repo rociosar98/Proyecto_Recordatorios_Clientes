@@ -2,7 +2,9 @@ body {
   margin: 0;
   padding: 0;
   height: 100vh;
-  background: linear-gradient(to right, #f5f5dc);
+  /*background: linear-gradient(to right, #f5f5dc);
+  background-color: #e3f2fd; */
+  background-color: #bbdefb;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   justify-content: center;
@@ -12,7 +14,7 @@ body {
 .page-container {
   text-align: center;
 }
-
+/*
 .titulo {
   font-size: 2.5rem;
   margin-bottom: 20px;
@@ -23,7 +25,7 @@ body {
 .titulo::first-letter {
   color: #ef83e1;
   font-size: 6rem;
-}
+}*/
 
 .login-container {
   background-color: #ffffff;

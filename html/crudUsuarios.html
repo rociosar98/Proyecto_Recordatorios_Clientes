@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Administrar Usuarios</title>
-  <link rel="stylesheet" href="style_crudUsuarios.css" />
+  <link rel="stylesheet" href="clientes.css" />
   <script type="module" src="/js/crudUsuarios.js"></script>
 </head>
 <body>
@@ -20,11 +20,16 @@
         <input type="text" id="nombre" placeholder="Nombre" required minlength="2" maxlength="20" />
         <input type="text" id="apellido" placeholder="Apellido" required minlength="2" maxlength="20" />
         <input type="email" id="correo" placeholder="Correo electrónico" required />
-        <input type="password" id="password" placeholder="Contraseña" required />
+        <input type="password" id="password" placeholder="Contraseña" required minlength="8" />
         <select id="rol" required>
           <option value="" disabled selected>Seleccionar rol</option>
           <option value="admin">Admin</option>
           <option value="vendedor">Vendedor</option>
+        </select>
+        <select id="permiso">
+          <option value="" disaled selected>Permiso</option>
+          <option value="lectura">Lectura</option>
+          <option value="escritura">Escritura</option>
         </select>
         <button type="submit">Crear usuario</button>
         <input type="hidden" id="usuarioId" />
@@ -44,6 +49,7 @@
             <th>Apellido</th>
             <th>Correo</th>
             <th>Rol</th>
+            <th>Permiso</th>
           </tr>
         </thead>
         <tbody id="usuariosTabla"></tbody>

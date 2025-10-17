@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     saludo.textContent = `Hola admin ${usuario.nombre} ${usuario.apellido} 👋`;
     }
 
-    const form = document.getElementById("usuarioForm");
+    const form = document.getElementById("crudForm");
     const tabla = document.getElementById("usuariosTabla");
 
     // Listar usuarios
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         const res = await fetchConAuth("http://localhost:8000/usuarios");
 
-        if (!res.ok) throw new Error("No se pudieron obtener usuarios");
+        if (!res.ok) throw new Error("No se pudieron obtener los usuarios");
         const data = await res.json();
 
         tabla.innerHTML = "";
@@ -28,19 +28,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             <td>${u.apellido}</td>
             <td>${u.correo}</td>
             <td>${u.rol}</td>
+            <td>${u.permiso}</td>
             `;
             tr.dataset.id = u.id;
             tr.dataset.nombre = u.nombre;
             tr.dataset.apellido = u.apellido;
             tr.dataset.correo = u.correo;
             tr.dataset.rol = u.rol;
+            tr.dataset.permiso = u.permiso;
 
           tr.addEventListener("click", () => {
+
               document.getElementById("usuarioId").value = u.id;
               document.getElementById("nombre").value = u.nombre;
               document.getElementById("apellido").value = u.apellido;
               document.getElementById("correo").value = u.correo;
               document.getElementById("rol").value = u.rol;
+              document.getElementById("permiso").value = u.permiso;
 
               form.querySelector("button[type='submit']").style.display = "none";
               btnActualizar.style.display = "inline-block";
@@ -51,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         });
       } catch (err) {
-        alert("Error al cargar usuarios: " + err.message);
+        alert("Error al cargar los usuarios: " + err.message);
       }
 }
 
@@ -66,7 +70,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           apellido: document.getElementById("apellido").value,
           correo: document.getElementById("correo").value,
           password: document.getElementById("password").value,
-          rol: document.getElementById("rol").value
+          rol: document.getElementById("rol").value,
+          permiso: document.getElementById("permiso").value,
+          activo: true
         };
 
         console.log(nuevoUsuario)
@@ -81,7 +87,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             body: JSON.stringify(nuevoUsuario)
           });
 
-          if (!res.ok) throw new Error("Error al crear usuario");
+          if (!res.ok) {
+            const errorData = await res.json();
+            console.error("Error detalle:", errorData);
+            throw new Error("Error al crear el usuario");
+        }
 
           alert("Usuario creado correctamente");
           form.reset();
@@ -90,6 +100,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           alert("Error: " + err.message);
         }
       });
+
+      
       
     const btnActualizar = document.getElementById("btnActualizar");
     const btnEliminar = document.getElementById("btnEliminar");
@@ -97,13 +109,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ACTUALIZAR USUARIO
     btnActualizar.addEventListener("click", async () => {
       const id = document.getElementById("usuarioId").value;
+      console.log("ID a actualizar:", id);
+
+      if (!id) {
+        alert("Seleccioná un usuario antes de actualizar");
+        return;
+    }
+
+      const passwordValue = document.getElementById("password").value;
+
       const usuarioActualizado = {
         nombre: document.getElementById("nombre").value,
         apellido: document.getElementById("apellido").value,
         correo: document.getElementById("correo").value,
         password: document.getElementById("password").value,
-        rol: document.getElementById("rol").value
+        rol: document.getElementById("rol").value,
+        permiso: document.getElementById("permiso").value,
+        activo: true
       };
+
+      if(passwordValue.trim() !== "") {
+        usuarioActualizado.password = passwordValue;
+      }
+
+      console.log("Payload actualización:", usuarioActualizado);
 
       try {
         const res = await fetch(`http://localhost:8000/usuarios/${id}`, {
@@ -115,7 +144,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           body: JSON.stringify(usuarioActualizado)
         });
 
-        if (!res.ok) throw new Error("Error al actualizar usuario");
+        const data = await res.json();
+        console.log("Respuesta del servidor:", res.status, data);
+
+        if (!res.ok) {
+      // Mostrar detalle de error
+            const detalle = data.detail || data;
+            alert("Error al actualizar el usuario: " + JSON.stringify(detalle));
+            return;
+        }
 
         alert("Usuario actualizado");
         form.reset();
@@ -140,7 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        if (!res.ok) throw new Error("Error al eliminar usuario");
+        if (!res.ok) throw new Error("Error al eliminar el usuario");
 
         alert("Usuario eliminado");
         form.reset();

@@ -6,18 +6,27 @@ from database import get_database_session
 from utils.dependencies import get_current_user, admin_required
 from services.historial import HistorialService
 
-from schemas.pagos import PagoOut  # Asegúrate de tener un esquema que refleje los datos que quieres retornar
+from schemas.pagos import PagoOut, HistorialPagoOut
 from models.pagos import Pagos as PagosModel
 from models.servicios import ServiciosCliente as ServiciosClienteModel
 
 historial_router = APIRouter()
 
-@historial_router.get('/historial/{cliente_id}', tags=['Historial'], response_model=List[PagoOut], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
-def historial_pagos(cliente_id: int, db: Session = Depends(get_database_session)):
+
+@historial_router.get('/historial', tags=['Historial'], response_model=List[HistorialPagoOut], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
+def historial_pagos(cliente_id: Optional[int] = None, db: Session = Depends(get_database_session)):
     pagos = HistorialService(db).obtener_historial(cliente_id)
     if not pagos:
         raise HTTPException(status_code=404, detail="No se encontraron pagos")
     return pagos
+
+
+#@historial_router.get('/historial/{cliente_id}', tags=['Historial'], response_model=List[PagoOut], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
+#def historial_pagos(cliente_id: int, db: Session = Depends(get_database_session)):
+#    pagos = HistorialService(db).obtener_historial(cliente_id)
+#    if not pagos:
+#        raise HTTPException(status_code=404, detail="No se encontraron pagos")
+#    return pagos
     #return HistorialService(db).obtener_historial(cliente_id)
 
 

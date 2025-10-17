@@ -37,6 +37,22 @@ body {
   background-color: #ffffffee;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow-x: auto;
+}
+/*
+.listas {
+  width: 100%;
+  max-width: none;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #ffffffee;
+  box-shadow: none;
+  border-radius: 0;
+}*/
+
+
+.listas table {
+  min-width: 1000px; /* O el ancho que necesites */
 }
 
 .cajaCrud h2,

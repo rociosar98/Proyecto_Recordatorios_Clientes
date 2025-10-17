@@ -34,9 +34,9 @@ def update_servicio(id: int, servicio: Servicios, db = Depends(get_database_sess
     result = ServiciosService(db).get_servicio_id(id)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontró el servicio")
-        
     ServiciosService(db).update_servicio(id, servicio)
     return JSONResponse(status_code=200, content={"message": "Se modifico el servicio"})
+
 
 @servicios_router.delete('/servicios/{id}', tags=['Servicios'], response_model=dict, status_code=200, dependencies=[Depends(JWTBearer())])
 def delete_servicio(id: int, db = Depends(get_database_session))-> dict:

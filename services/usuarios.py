@@ -1,5 +1,7 @@
 from models.usuarios import Usuarios as UsuariosModel
-from schemas.usuarios import Usuarios
+from schemas.usuarios import Usuarios, UsuarioUpdate
+from utils.security import get_password_hash
+
 
 class UsuariosService():
     
@@ -20,15 +22,35 @@ class UsuariosService():
         self.db.commit()
         return
     
-    def update_usuarios(self, id: int, data: Usuarios):
+    def update_usuarios(self, id: int, data: UsuarioUpdate):
         usuario = self.db.query(UsuariosModel).filter(UsuariosModel.id == id).first()
-        usuario.nombre = data.nombre
-        usuario.apellido = data.apellido
-        usuario.correo = data.correo
-        usuario.password = data.password
-        usuario.rol = data.rol
+        if data.nombre is not None:
+            usuario.nombre = data.nombre
+        if data.apellido is not None:
+            usuario.apellido = data.apellido
+        if data.correo is not None:
+            usuario.correo = data.correo
+        if data.rol is not None:
+            usuario.rol = data.rol
+        if hasattr(data, 'password') and data.password.strip() != "":
+            usuario.password = get_password_hash(data.password)
         self.db.commit()
         return
+    
+    #def update_usuarios(self, id: int, data: UsuarioUpdate):
+    #    usuario = self.db.query(UsuariosModel).filter(UsuariosModel.id == id).first()
+    #    if data.nombre is not None:
+    #        usuario.nombre = data.nombre
+    #    if data.apellido is not None:
+    #        usuario.apellido = data.apellido
+    #    if data.correo is not None:
+    #        usuario.correo = data.correo
+    #    if data.rol is not None:
+    #        usuario.rol = data.rol
+    #    if data.password:
+    #        usuario.password = get_password_hash(data.password)
+    #    self.db.commit()
+
 
     def delete_usuarios(self, id: int):
        usuario = self.db.query(UsuariosModel).filter(UsuariosModel.id == id).first()
@@ -42,4 +64,3 @@ class UsuariosService():
         self.db.commit()
         return
     
-

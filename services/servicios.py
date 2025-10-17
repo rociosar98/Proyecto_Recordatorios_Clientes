@@ -45,7 +45,7 @@ class ServiciosService():
         servicio.tipo = data.tipo
         servicio.precio = nuevo_precio
         servicio.recurrencia = data.recurrencia
-        servicio.cuotas_permitidas = data.cuotas_permitidas
+        servicio.cuotas = data.cuotas
 
         #si es recurrente y cambio el precio, actualizar también los precios congelados de los clientes
         if servicio.tipo == "recurrente" and cambio_precio:
@@ -201,11 +201,4 @@ class ServiciosService():
         #    ServiciosClienteModel.fecha_vencimiento <= limite,
         #    ServiciosClienteModel.activo == True
         #).all()
-    
-
-
-
-
-   
-
     

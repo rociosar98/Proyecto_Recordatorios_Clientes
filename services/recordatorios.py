@@ -6,7 +6,6 @@ from schemas.recordatorios import RecordatorioOut
 from models.pagos import Pagos as PagosModel
 
 
-
 class RecordatoriosService():
 
     def __init__(self, db) -> None:
@@ -256,14 +255,14 @@ class RecordatoriosService():
                     continue
 
                 mensaje = f"""
-    📢 *Aviso de Pago Pendiente*
+                📢 *Aviso de Pago Pendiente*
 
-    👤 Cliente: {cliente.nombre} {cliente.apellido}
-    🏢 Empresa: {cliente.empresa}
-    🧾 Servicio: {servicio.nombre}
-    📆 Fecha del recordatorio: {r.fecha_recordatorio.strftime('%d/%m/%Y')}
-    ⚠️ Tipo de aviso: {r.tipo_recordatorio.upper()}
-    """
+                👤 Cliente: {cliente.nombre} {cliente.apellido}
+                🏢 Empresa: {cliente.empresa}
+                🧾 Servicio: {servicio.nombre}
+                📆 Fecha del recordatorio: {r.fecha_recordatorio.strftime('%d/%m/%Y')}
+                ⚠️ Tipo de aviso: {r.tipo_recordatorio.upper()}
+                """
 
                 if metodo == "mail":
                     self.enviar_email(destinatario=contacto, asunto="Aviso de Deuda", cuerpo=mensaje)
@@ -301,15 +300,15 @@ class RecordatoriosService():
             servicio = r.servicio_cliente.servicio
 
             mensaje = f"""
-    📢 *Aviso de {r.tipo_recordatorio.upper()}*
+            📢 *Aviso de {r.tipo_recordatorio.upper()}*
 
-    👤 Cliente: {cliente.nombre} {cliente.apellido}
-    🏢 Empresa: {cliente.empresa}
-    🧾 Servicio: {servicio.nombre}
-    📅 Fecha: {r.fecha_recordatorio.strftime('%d/%m/%Y')}
+            👤 Cliente: {cliente.nombre} {cliente.apellido}
+            🏢 Empresa: {cliente.empresa}
+            🧾 Servicio: {servicio.nombre}
+            📅 Fecha: {r.fecha_recordatorio.strftime('%d/%m/%Y')}
 
-    Por favor, regularice su situación si aún no lo ha hecho.
-            """
+            Por favor, regularice su situación si aún no lo ha hecho.
+                    """
 
             contacto = cliente.correo if r.metodo_envio == "email" else cliente.telefono
 

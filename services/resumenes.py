@@ -51,23 +51,23 @@ class ResumenesService:
             conceptos.append(f"{sc.servicio.nombre}: ${sc.precio_congelado:.2f} (Pagado: ${pagado:.2f})")
 
         resumen = f"""
-📋 *Resumen de Pago*
+        📋 *Resumen de Pago*
 
-👤 Cliente: {cliente.nombre} {cliente.apellido}
-🏢 Empresa: {cliente.empresa}
+        👤 Cliente: {cliente.nombre} {cliente.apellido}
+        🏢 Empresa: {cliente.empresa}
 
-🧾 Servicios:
-{chr(10).join(conceptos)}
+        🧾 Servicios:
+        {chr(10).join(conceptos)}
 
-💰 Total a pagar: ${total_deuda:.2f}
+        💰 Total a pagar: ${total_deuda:.2f}
 
-🏦 Formas de pago:
-- CBU: {datos_empresa.cbu}
-- CVU: {datos_empresa.cvu}
-- Otros: {datos_empresa.formas_pago or 'No especificados'}
+        🏦 Formas de pago:
+        - CBU: {datos_empresa.cbu}
+        - CVU: {datos_empresa.cvu}
+        - Otros: {datos_empresa.formas_pago or 'No especificados'}
 
-Muchas gracias por su confianza.
-"""
+        Muchas gracias por su confianza.
+        """
 
         return resumen
 

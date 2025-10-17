@@ -12,16 +12,28 @@ buttons.forEach(btn => {
     sections.forEach(sec => sec.classList.remove("visible"));
 
     // Mostrar sección correspondiente
-    const sectionId = "section-" + btn.id.replace("btn", "").toLowerCase();
+    let sectionId;
+    if (btn.id === "configuracion") {
+      sectionId = "section-configuracion";
+    } else {
+      sectionId = "section-" + btn.id.replace("btn", "").toLowerCase();
+    }
+    
     const target = document.getElementById(sectionId);
     if (target) {
       target.classList.add("visible");
     } else {
       // Si no hay sección interna, redirigir a otra página (opcional)
-      if (btn.id === "btnClientes") {
-        window.location.href = "crudClientes.html";
+      if (btn.id == "btnUsuarios") {
+        window.location.href = "crudUsuarios.html"
+      } else if (btn.id === "btnClientes") {
+        window.location.href = "clientes.html";
       } else if (btn.id === "btnServicios") {
         window.location.href = "crudServicios.html";
+      } else if (btn.id === "btnHistorial") {
+        window.location.href = "historial.html";
+      } else if (btn.id === "btnListado") {
+        window.location.href = "listadoMensual.html";
       } else if (btn.id === "logout") {
         // Logout simple
         sessionStorage.clear();
@@ -69,5 +81,4 @@ document.querySelectorAll("[data-action][data-module]").forEach(button => {
     }
   });
 });
-
 
