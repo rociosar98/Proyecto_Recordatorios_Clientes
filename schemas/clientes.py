@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
 from core.enums import MetodoAviso
+from schemas.usuarios import UsuarioMini
 
 class Clientes(BaseModel):
     nombre: str
@@ -16,7 +17,7 @@ class Clientes(BaseModel):
     correo: EmailStr
     metodo_aviso: MetodoAviso  # "email", "whatsapp", "ambos"
     condicion_iva: str
-    responsable_id: int  # ID del usuario responsable (vendedor)
+    responsable_id: Optional[UsuarioMini]
     activo: Optional[bool] = True 
 
     class Config:

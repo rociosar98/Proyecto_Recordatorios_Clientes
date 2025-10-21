@@ -20,6 +20,8 @@ __pycache__/
 /html/tarjetas.html
 /html/tarjetas.css
 /html/style1.css
-/html/style2.css
 /html/style3.css
 /html/empresa.html
+/html/listado.html
+/html/listado.css
+database.py

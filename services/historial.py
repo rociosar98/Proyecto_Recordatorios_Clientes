@@ -17,6 +17,45 @@ class HistorialService:
     #def __init__(self, db: Session):
     #    self.db = db
 
+    #def obtener_historial(self, cliente_id: Optional[int] = None):
+    #    query = (
+    #        self.db.query(PagosModel)
+    #        .join(ServiciosClienteModel)
+    #        .options(
+    #            joinedload(PagosModel.servicio_cliente).joinedload(ServiciosClienteModel.cliente),
+    #            joinedload(PagosModel.servicio_cliente).joinedload(ServiciosClienteModel.servicio)
+    #        )
+    #    )
+
+    #    if cliente_id:
+    #        query = query.filter(ServiciosClienteModel.cliente_id == cliente_id)
+
+    #    pagos = query.all()
+
+    #    resultado = []
+    #    for pago in pagos:
+    #        pagos_relacionados = self.db.query(PagosModel).filter_by(servicio_cliente_id = pago.servicio_cliente_id).all()
+    #        total_pagado = sum(p.monto for p in pagos_relacionados)
+    #        monto_total = pago.servicio_cliente.precio_congelado
+
+    #        if total_pagado >= monto_total:
+    #            estado = "pagado"
+    #        elif total_pagado > 0:
+    #            estado = "parcial"
+    #        else:
+    #            estado = "pendiente"
+
+    #        resultado.append({
+    #            "monto": pago.monto,
+    #            "fecha_facturacion": pago.fecha_facturacion,
+    #            "fecha_pago": pago.fecha_pago,
+    #            "estado": estado,
+    #            "cliente": pago.servicio_cliente.cliente.nombre,
+    #            "servicio": pago.servicio_cliente.servicio.nombre
+    #        })
+
+    #    return resultado
+    
     def obtener_historial(self, cliente_id: Optional[int] = None):
         query = (
             self.db.query(PagosModel)
@@ -34,16 +73,31 @@ class HistorialService:
 
         resultado = []
         for pago in pagos:
+            pagos_relacionados = self.db.query(PagosModel).filter_by(servicio_cliente_id=pago.servicio_cliente_id).all()
+            total_pagado = sum(p.monto for p in pagos_relacionados)
+
+            monto_total = pago.servicio_cliente.precio_congelado
+
+            print(f"ServicioClienteID: {pago.servicio_cliente_id}, Total pagado: {total_pagado}, Monto total: {monto_total}")
+
+            if total_pagado >= monto_total:
+                estado = "pagado"
+            elif total_pagado > 0:
+                estado = "parcial"
+            else:
+                estado = "pendiente"
+
             resultado.append({
                 "monto": pago.monto,
                 "fecha_facturacion": pago.fecha_facturacion,
                 "fecha_pago": pago.fecha_pago,
-                "estado": pago.estado.value,
+                "estado": estado,
                 "cliente": pago.servicio_cliente.cliente.nombre,
                 "servicio": pago.servicio_cliente.servicio.nombre
             })
 
         return resultado
+
 
 
         #pagos = (
