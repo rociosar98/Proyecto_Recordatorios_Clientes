@@ -8,9 +8,8 @@ class Servicios(BaseModel):
     tipo: TipoServicio
     precio: float
     recurrencia: Optional[Recurrencia] = None
-    cuotas: Optional[int] = None
-    #cuotas_permitidas: bool = False
-    cuotas: Optional[bool] = False
+    #cuotas: Optional[int] = None
+    #cuotas: Optional[bool] = False
     activo: Optional[bool] = True
 
 
@@ -19,13 +18,13 @@ class Servicios(BaseModel):
         if self.tipo == TipoServicio.recurrente:
             if not self.recurrencia:
                 raise ValueError("Los servicios recurrentes deben tener una recurrencia definida")
-            if self.cuotas is not None:
-                raise ValueError("Los servicios recurrentes no deben tener cuotas")
+            #if self.cuotas is not None:
+            #    raise ValueError("Los servicios recurrentes no deben tener cuotas")
         elif self.tipo == TipoServicio.pago_unico:
             if self.recurrencia is not None:
                 raise ValueError("Los servicios de pago único no deben tener recurrencia")
-            if self.cuotas not in (1, 3, 6, 12):
-                raise ValueError("Las cuotas permitidas para pago único son 1, 3, 6 o 12")
+            #if self.cuotas not in (1, 3, 6, 12):
+            #    raise ValueError("Las cuotas permitidas para pago único son 1, 3, 6 o 12")
         return self
 
     #@model_validator(mode="after")
@@ -47,7 +46,8 @@ class ServicioRespuesta(BaseModel):
     tipo: TipoServicio
     precio: float
     recurrencia: Optional[Recurrencia] = None
-    cuotas: Optional[bool] = False
+    cuotas: Optional[int] = None
+    #cuotas: Optional[bool] = False
     activo: Optional[bool] = True
     
     class Config:

@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const tipoServicio = document.getElementById("tipo");
     const recurrencia = document.getElementById("recurrencia");
-    const cuotas = document.getElementById("cuotas");
+    /*const cuotas = document.getElementById("cuotas");*/
 
     let servicioSeleccionadoId = null; //Guarda el ID del servicio seleccionado para editar o eliminar. Está vacío al inicio.
 
@@ -25,25 +25,25 @@ document.addEventListener("DOMContentLoaded", async () => {
             recurrencia.disabled = false;
             recurrencia.required = true;
 
-            cuotas.disabled = true;
+            /*cuotas.disabled = true;
             cuotas.required = false;
-            cuotas.value = "";
+            cuotas.value = "";*/
         } else if (tipoServicio.value === "pago_unico") {
-            cuotas.disabled = false;
-            cuotas.required = true;
+            /*cuotas.disabled = false;
+            cuotas.required = true;*/
 
             recurrencia.disabled = true;
             recurrencia.required = false;
             recurrencia.value = "";
         } else {
             recurrencia.disabled = true;
-            cuotas.disabled = true;
+            /*cuotas.disabled = true;*/
 
             recurrencia.required = false;
-            cuotas.required = false;
+            /*cuotas.required = false;*/
 
             recurrencia.value = "";
-            cuotas.value = "";
+            /*cuotas.value = "";*/
         }
     });
 
@@ -64,7 +64,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <td>${s.precio}</td>
                     <td>${s.tipo}</td>
                     <td>${s.recurrencia ?? ''}</td>
-                    <td>${s.cuotas ?? ''}</td>
                     </tr>`;
             });
 
@@ -97,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("precio").value = servicio.precio;
             document.getElementById("tipo").value = servicio.tipo;
             document.getElementById("recurrencia").value = servicio.recurrencia ?? "";
-            document.getElementById("cuotas").value = servicio.cuotas ?? "";
+            /*document.getElementById("cuotas").value = servicio.cuotas ?? "";*/
             // Rellena los campos del formulario HTML con los datos del destino seleccionado, para que el usuario pueda editarlos.
 
             tipoServicio.dispatchEvent(new Event("change")); // Dispara el cambio para activar/desactivar campos
@@ -123,14 +122,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         const precio = parseFloat(document.getElementById("precio").value);
         const tipo = document.getElementById("tipo").value;
         const recurrenciaVal = (tipo === "recurrente") ? document.getElementById("recurrencia").value || null : null;
-        const cuotasVal = (tipo === "pago_unico") ? parseInt(document.getElementById("cuotas").value) || null : null;
+        /*const cuotasVal = (tipo === "pago_unico") ? parseInt(document.getElementById("cuotas").value) || null : null;*/
 
         const nuevoServicio = {
             nombre,
             precio,
             tipo,
             recurrencia: recurrenciaVal,
-            cuotas: cuotasVal,
+            /*cuotas: cuotasVal,*/
             activo: true
         }; // Crea un objeto con los datos del nuevo destino, tomados desde los inputs del formulario HTML.
 
@@ -166,14 +165,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         const precio = parseFloat(document.getElementById("precio").value);
         const tipo = document.getElementById("tipo").value;
         const recurrenciaVal = recurrencia.disabled ? null : document.getElementById("recurrencia").value || null;
-        const cuotasVal = cuotas.disabled ? null : parseInt(document.getElementById("cuotas").value) || null;
+        /*const cuotasVal = cuotas.disabled ? null : parseInt(document.getElementById("cuotas").value) || null;*/
 
         const servicioActualizado = {
             nombre,
             precio,
             tipo,
             recurrencia: recurrenciaVal,
-            cuotas: cuotasVal,
+            /*cuotas: cuotasVal,*/
             activo: true
         }; //Se toma la información actual del formulario y se construye un objeto con los datos nuevos o modificados del servicio.
 
@@ -236,10 +235,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Restablecer campos deshabilitados
         recurrencia.disabled = true;
-        cuotas.disabled = true;
+        /*cuotas.disabled = true;*/
     }
 
     // Inicializa campos deshabilitados al cargar la página
     recurrencia.disabled = true;
-    cuotas.disabled = true;
+    /*cuotas.disabled = true;*/
 });

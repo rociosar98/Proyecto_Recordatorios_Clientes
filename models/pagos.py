@@ -16,3 +16,11 @@ class Pagos(Base):
 
     servicio_cliente = relationship("ServiciosCliente", back_populates="pagos")
 
+    @property
+    def cliente(self):
+        return self.servicio_cliente.cliente if self.servicio_cliente else None
+
+    @property
+    def servicio(self):
+        return self.servicio_cliente.servicio if self.servicio_cliente else None
+

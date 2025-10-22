@@ -161,13 +161,3 @@ tbody tr:hover {
   background-color: #800000;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  main {
-    flex-direction: column;
-  }
-  
-  .listas, .cajaCrud {
-    min-width: 100%;
-  }
-}

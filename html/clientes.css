@@ -180,14 +180,17 @@ table td button {
   background-color: #b71c1c;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  form#crudForm {
-    grid-template-columns: 1fr;
-  }
+#btnAsignar {
+  background-color: #388e3c;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
 
-  .form-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
+#btnAsignar:hover {
+  background-color: #2e7d32;
 }

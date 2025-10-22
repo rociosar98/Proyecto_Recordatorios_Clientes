@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asiignar Servicios</title>
+    <link rel="stylesheet" href="clientes.css">
+    <script type="module" src="/js/asignar_servicio.js"></script>
+</head>
+<body>
+    <header class="cajaHeaders">
+    <h1>Asignar Servicios</h1>
+    <p id="adminSaludo"></p>
+  </header>
+
+  <main>
+    <section class="cajaCrud">
+    <h2>Asignar Servicio a Cliente</h2>
+    <form id="crudForm">
+        <select id="clienteSelect" required>
+        <option value="" disabled selected>Seleccionar cliente</option>
+        <!-- Aquí se cargan los clientes -->
+        </select>
+
+        <select id="servicioSelect" required>
+        <option value="" disabled selected>Seleccionar servicio</option>
+        <!-- Aquí se cargan los servicios -->
+        </select>
+
+        <div class="form-buttons">
+            <button type="submit" id="btnCrear">Asignar Servicio</button>
+        </div>
+    </form>
+    </section>
+
+    <!-- Tabla de asignaciones -->
+    <section class="listas">
+      <h2>Servicios Asignados</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Servicio</th>
+            <th>Precio</th>
+            <th>Desde</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaAsignaciones">
+          <!-- Las filas serán generadas con JS -->
+        </tbody>
+      </table>
+    </section>
+
+
+
+  </main>
+
+</body>
+</html>

@@ -17,45 +17,7 @@ class HistorialService:
     #def __init__(self, db: Session):
     #    self.db = db
 
-    #def obtener_historial(self, cliente_id: Optional[int] = None):
-    #    query = (
-    #        self.db.query(PagosModel)
-    #        .join(ServiciosClienteModel)
-    #        .options(
-    #            joinedload(PagosModel.servicio_cliente).joinedload(ServiciosClienteModel.cliente),
-    #            joinedload(PagosModel.servicio_cliente).joinedload(ServiciosClienteModel.servicio)
-    #        )
-    #    )
 
-    #    if cliente_id:
-    #        query = query.filter(ServiciosClienteModel.cliente_id == cliente_id)
-
-    #    pagos = query.all()
-
-    #    resultado = []
-    #    for pago in pagos:
-    #        pagos_relacionados = self.db.query(PagosModel).filter_by(servicio_cliente_id = pago.servicio_cliente_id).all()
-    #        total_pagado = sum(p.monto for p in pagos_relacionados)
-    #        monto_total = pago.servicio_cliente.precio_congelado
-
-    #        if total_pagado >= monto_total:
-    #            estado = "pagado"
-    #        elif total_pagado > 0:
-    #            estado = "parcial"
-    #        else:
-    #            estado = "pendiente"
-
-    #        resultado.append({
-    #            "monto": pago.monto,
-    #            "fecha_facturacion": pago.fecha_facturacion,
-    #            "fecha_pago": pago.fecha_pago,
-    #            "estado": estado,
-    #            "cliente": pago.servicio_cliente.cliente.nombre,
-    #            "servicio": pago.servicio_cliente.servicio.nombre
-    #        })
-
-    #    return resultado
-    
     def obtener_historial(self, cliente_id: Optional[int] = None):
         query = (
             self.db.query(PagosModel)
@@ -73,7 +35,7 @@ class HistorialService:
 
         resultado = []
         for pago in pagos:
-            pagos_relacionados = self.db.query(PagosModel).filter_by(servicio_cliente_id=pago.servicio_cliente_id).all()
+            pagos_relacionados = self.db.query(PagosModel).filter_by(servicio_cliente_id = pago.servicio_cliente_id).all()
             total_pagado = sum(p.monto for p in pagos_relacionados)
 
             monto_total = pago.servicio_cliente.precio_congelado
@@ -157,6 +119,11 @@ class HistorialService:
             self.db.query(PagosModel)
             .join(ServiciosClienteModel, PagosModel.servicio_cliente_id == ServiciosClienteModel.id)
             .join(ClientesModel, ServiciosClienteModel.cliente_id == ClientesModel.id)
+            .options(
+                joinedload(PagosModel.servicio_cliente)
+                .joinedload(ServiciosClienteModel.cliente)
+                .joinedload(ClientesModel.responsable)
+            )
         )
 
         if condicion_iva:
@@ -180,8 +147,13 @@ class HistorialService:
                 "cliente": {
                     "id": pago.servicio_cliente.cliente.id,
                     "nombre": pago.servicio_cliente.cliente.nombre,
+                    "empresa": pago.servicio_cliente.cliente.empresa,
                     "condicion_iva": pago.servicio_cliente.cliente.condicion_iva,
-                    "responsable_id": pago.servicio_cliente.cliente.responsable_id
+                    "responsable": {
+                        "id": pago.servicio_cliente.cliente.responsable.id,
+                        "nombre": pago.servicio_cliente.cliente.responsable.nombre,
+                        "apellido": pago.servicio_cliente.cliente.responsable.apellido
+                    } if pago.servicio_cliente.cliente.responsable else None
                 },
                 "servicio": {
                     "id": pago.servicio_cliente.servicio.id,

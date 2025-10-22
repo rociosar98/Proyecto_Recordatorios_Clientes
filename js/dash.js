@@ -30,6 +30,8 @@ buttons.forEach(btn => {
         window.location.href = "clientes.html";
       } else if (btn.id === "btnServicios") {
         window.location.href = "crudServicios.html";
+      } else if (btn.id === "btnAsignarServicio") {
+        window.location.href = "asignar_servicio.html";
       } else if (btn.id === "btnHistorial") {
         window.location.href = "historial.html";
       } else if (btn.id === "btnListado") {

@@ -45,7 +45,7 @@ class ServiciosService():
         servicio.tipo = data.tipo
         servicio.precio = nuevo_precio
         servicio.recurrencia = data.recurrencia
-        servicio.cuotas = data.cuotas
+        #servicio.cuotas = data.cuotas
 
         #si es recurrente y cambio el precio, actualizar también los precios congelados de los clientes
         if servicio.tipo == "recurrente" and cambio_precio:

@@ -30,13 +30,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await res.json();
 
-      // 🔽 Ordenamos manualmente: primero por responsable, luego por cliente
+      // Ordenamos manualmente: primero por responsable, luego por cliente
       data.sort((a, b) => {
-        const r1 = a.cliente?.responsable_id || "";
-        const r2 = b.cliente?.responsable_id || "";
+        const r1Nombre = a.cliente?.responsable?.nombre?.toLowerCase() || "";
+        const r1Apellido = a.cliente?.responsable?.apellido?.toLowerCase() || "";
+        const r2Nombre = b.cliente?.responsable?.nombre?.toLowerCase() || "";
+        const r2Apellido = b.cliente?.responsable?.apellido?.toLowerCase() || "";
 
-        if (r1 < r2) return -1;
-        if (r1 > r2) return 1;
+        const nombreCompleto1 = `${r1Apellido} ${r1Nombre}`;
+        const nombreCompleto2 = `${r2Apellido} ${r2Nombre}`;
+
+        const compareResponsable = nombreCompleto1.localeCompare(nombreCompleto2);
+        if (compareResponsable !== 0) return compareResponsable;
 
         const e1 = (a.cliente?.empresa || "").toLowerCase();
         const e2 = (b.cliente?.empresa || "").toLowerCase();
@@ -77,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tr.innerHTML = `
         <td>${pago.cliente?.nombre || "-"}</td>
         <td>${pago.cliente?.condicion_iva || "-"}</td>
-        <td>${pago.cliente?.responsable_id || "-"}</td>
+        <td>${pago.cliente?.responsable?.nombre || ""} ${pago.cliente?.responsable?.apellido || "-"}</td>
         <td>${pago.servicio?.nombre || "-"}</td>
         <td>${pago.fecha_facturacion || "-"}</td>
         <td>${pago.fecha_pago || "-"}</td>
