@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const token = sessionStorage.getItem("token");
-    const usuario = JSON.parse(sessionStorage.getItem("usuario")); //Recupera del sessionStorage el token de autenticación y el usuario logueado (parseado como objeto JS).
+    const usuario = JSON.parse(sessionStorage.getItem("usuario"));
     const saludo = document.getElementById("adminSaludo");
     const tabla = document.getElementById("serviciosTabla");
     const form = document.getElementById("crudForm");
@@ -51,11 +51,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const res = await fetch("http://localhost:8000/servicios", {
                 headers: { Authorization: `Bearer ${token}` }
-            }); //Se le envía al servidor el token de autenticación en el header Authorization, con el formato Bearer <token>.
+            });
 
             if (!res.ok) throw new Error("No se pudieron obtener los servicios");
 
-            const data = await res.json(); //Convierte la respuesta del servidor en un objeto JavaScript.
+            const data = await res.json();
             tabla.innerHTML = "";
             data.forEach(s => {
                 tabla.innerHTML += ` 
@@ -89,15 +89,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (!res.ok) throw new Error("Servicio no encontrado");
 
-            const servicio = await res.json(); // Convierte la respuesta de la API en un objeto JS.
-            // Hace fetch al backend para obtener un destino por su ID. Si no lo encuentra, lanza un error.
+            const servicio = await res.json();
 
             document.getElementById("nombre").value = servicio.nombre;
             document.getElementById("precio").value = servicio.precio;
             document.getElementById("tipo").value = servicio.tipo;
             document.getElementById("recurrencia").value = servicio.recurrencia ?? "";
             /*document.getElementById("cuotas").value = servicio.cuotas ?? "";*/
-            // Rellena los campos del formulario HTML con los datos del destino seleccionado, para que el usuario pueda editarlos.
 
             tipoServicio.dispatchEvent(new Event("change")); // Dispara el cambio para activar/desactivar campos
 
@@ -113,8 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     form.addEventListener("submit", async (e) => {
-        e.preventDefault(); //Evita que el formulario haga su comportamiento por defecto (recargar la página o enviar datos de forma tradicional).
-        // Al enviar el formulario, previene el comportamiento por defecto y se asegura de que no haya un servicio seleccionado (porque en ese caso se actualizaría, no se crearía uno nuevo).
+        e.preventDefault();
 
         if (servicioSeleccionadoId) return;
 
@@ -131,7 +128,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             recurrencia: recurrenciaVal,
             /*cuotas: cuotasVal,*/
             activo: true
-        }; // Crea un objeto con los datos del nuevo destino, tomados desde los inputs del formulario HTML.
+        };
 
         console.log("Payload para crear servicio:", nuevoServicio);
 
@@ -140,9 +137,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}` //Se pasan los headers necesarios: tipo de contenido y token de autenticación.
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(nuevoServicio) // Se convierte el objeto JS (nuevoServicio) a texto JSON con JSON.stringify().
+                body: JSON.stringify(nuevoServicio)
             });
 
             if (!res.ok) {
@@ -183,9 +180,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}` //Incluye el token de autenticación en los headers.
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(servicioActualizado) //Envía los datos actualizados en el cuerpo (body) en formato JSON.
+                body: JSON.stringify(servicioActualizado)
             });
 
             const respBody = await res.json();
@@ -208,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     btnEliminar.addEventListener("click", async () => {
         if (!servicioSeleccionadoId) return;
 
-        if (!confirm("¿Estás seguro de eliminar este servicio?")) return; //Si no hay servicio seleccionado o el usuario no confirma, no hace nada.
+        if (!confirm("¿Estás seguro de eliminar este servicio?")) return;
 
         try {
             const res = await fetch(`http://localhost:8000/servicios/${servicioSeleccionadoId}`, {

@@ -80,6 +80,7 @@ class ServicioAsignado(BaseModel):
     id: int
     cliente_id: int
     cliente_nombre: str
+    cliente_apellido: str
     servicio_id: int
     servicio_nombre: str
     precio_congelado: float

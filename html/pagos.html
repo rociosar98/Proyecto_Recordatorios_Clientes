@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Pagos</title>
+  <link rel="stylesheet" href="pagos.css">
+  <script type="module" src="/js/pagos.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Registro de Pagos</h1>
+  </header>
+
+  <main>
+    <section class="resumen-pagos">
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente / Empresa</th>
+            <th>Servicio</th>
+            <th>Monto Total</th>
+            <th>Total Pagado</th>
+            <th>Saldo</th>
+            <th>Saldo a Favor</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaPagos">
+          <!-- Filas generadas por JS -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Modal para items del mes -->
+    <div id="popupItems" class="popup">
+      <div class="popup-content">
+        <span class="close-btn">&times;</span>
+        <h3>Items del Mes</h3>
+        <ul id="itemsList"></ul>
+      </div>
+    </div>
+
+    <!-- Modal para registrar pago -->
+    <div id="popupPago" class="popup">
+      <div class="popup-content">
+        <span class="close-btn">&times;</span>
+        <h3>Registrar Pago</h3>
+        <form id="formPago">
+          <label>Monto:</label>
+          <input type="number" step="0.01" id="pagoMonto" required>
+          <label>Fecha de Pago:</label>
+          <input type="date" id="pagoFecha" required>
+          <label>Observaciones:</label>
+          <textarea id="pagoObs"></textarea>
+          <button type="submit">Registrar Pago</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

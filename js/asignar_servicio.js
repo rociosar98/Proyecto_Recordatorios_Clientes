@@ -7,18 +7,44 @@ document.addEventListener("DOMContentLoaded", async () => {
   const saludo = document.getElementById("adminSaludo");
   const clienteSelect = document.getElementById("clienteSelect");
   const servicioSelect = document.getElementById("servicioSelect");
-  const asignarForm = document.getElementById("crudForm");  // reutiliza id “crudForm”
+  const asignarForm = document.getElementById("crudForm");
   const tablaAsignaciones = document.getElementById("tablaAsignaciones");
+  const cuotasContainer = document.getElementById("cuotasContainer");
+  const cuotasSelect = document.getElementById("cuotasSelect");
 
   if (usuario) {
     saludo.textContent = `Hola admin ${usuario.nombre} ${usuario.apellido} 👋`;
   }
 
-  // Carga inicial de clientes y servicios
+  // Carga inicial
   await cargarClientes();
   await cargarServicios();
   await cargarAsignaciones();
 
+  // Mostrar/ocultar cuotas según tipo de servicio
+  servicioSelect.addEventListener("change", async () => {
+    const servicioId = parseInt(servicioSelect.value);
+    if (!servicioId) return;
+
+    try {
+      const res = await fetch(`http://localhost:8000/servicios/${servicioId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("No se pudo obtener el servicio");
+      const servicio = await res.json();
+
+      if (servicio.tipo === "pago_unico") {
+        cuotasContainer.style.display = "block";
+      } else {
+        cuotasContainer.style.display = "none";
+        cuotasSelect.value = "";
+      }
+    } catch (err) {
+      alert("Error al cargar servicio: " + err.message);
+    }
+  });
+
+  // Submit asignar servicio
   asignarForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -32,7 +58,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const payload = {
       cliente_id: parseInt(clienteId),
-      servicio_id: parseInt(servicioId)
+      servicio_id: parseInt(servicioId),
+      cuotas: cuotasSelect.value ? parseInt(cuotasSelect.value) : null
     };
 
     try {
@@ -52,6 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       alert("Servicio asignado correctamente");
       asignarForm.reset();
+      cuotasContainer.style.display = "none";
       await cargarAsignaciones();
 
     } catch (err) {
@@ -97,7 +125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Función: cargar asignaciones actuales (servicios por cliente)
+  // Función: cargar asignaciones actuales
   async function cargarAsignaciones() {
     try {
       const res = await fetch("http://localhost:8000/servicios_clientes", {
@@ -110,10 +138,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       asignaciones.forEach(a => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${a.cliente_nombre || "-"}</td>
+          <td>${a.cliente_nombre || "-"} ${a.cliente_apellido || ""}</td>
           <td>${a.servicio_nombre || "-"}</td>
           <td>${a.precio_congelado != null ? '$'+a.precio_congelado : "-"}</td>
-          <td>${a.fecha_inicio || "-"}</td>
+          <td>${formatearFecha(a.fecha_inicio)}</td>
+          <td>${a.fecha_vencimiento ? formatearFecha(a.fecha_vencimiento) : "-"}</td>
+          <td>${a.cuotas != null ? a.cuotas : "-"}</td>
           <td>
             <button class="btn-borrar" data-id="${a.id}">Desasignar</button>
           </td>
@@ -121,31 +151,43 @@ document.addEventListener("DOMContentLoaded", async () => {
         tablaAsignaciones.appendChild(tr);
       });
 
-      // Agregar evento para botón “Desasignar”
-      document.querySelectorAll(".btn-borrar").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-id");
-          if (!confirm("¿Segur@ que querés desasignar este servicio?")) return;
-          try {
-            const resDel = await fetch(`http://localhost:8000/servicios_clientes/${id}`, {
-              method: "DELETE",
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            if (!resDel.ok) {
-              const errBody = await resDel.json();
-              throw new Error(errBody.detail || "Error al desasignar servicio");
-            }
-            alert("Servicio desasignado");
-            await cargarAsignaciones();
-          } catch (err) {
-            alert("Error: " + err.message);
-          }
-        });
-      });
-
     } catch (err) {
       alert("Error al cargar asignaciones: " + err.message);
     }
+  }
+
+  // Delegación de eventos para desasignar
+  tablaAsignaciones.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("btn-borrar")) return;
+
+    const id = e.target.getAttribute("data-id");
+    if (!confirm("¿Segur@ que querés desasignar este servicio?")) return;
+
+    try {
+      const resDel = await fetch(`http://localhost:8000/servicios_clientes/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!resDel.ok) {
+        const errBody = await resDel.json();
+        throw new Error(errBody.detail || "Error al desasignar servicio");
+      }
+      alert("Servicio desasignado");
+      await cargarAsignaciones();
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  });
+
+  // Función para formatear fechas
+  function formatearFecha(fechaStr) {
+    if (!fechaStr) return "-";
+    const fecha = new Date(fechaStr);
+    return fecha.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
   }
 
 });

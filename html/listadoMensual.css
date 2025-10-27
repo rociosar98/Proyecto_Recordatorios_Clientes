@@ -42,7 +42,8 @@ h1 {
 
 button#btnBuscar {
   padding: 0.6rem 1.2rem;
-  background-color: #007bff;
+  /*background-color: #007bff;*/
+  background-color: #415e7c;
   color: white;
   border: none;
   border-radius: 4px;
@@ -51,7 +52,8 @@ button#btnBuscar {
 }
 
 button#btnBuscar:hover {
-  background-color: #0056b3;
+  /*background-color: #0056b3;*/
+  background-color: #2c3e50;
 }
 
 table {
@@ -61,7 +63,8 @@ table {
 }
 
 thead {
-  background-color: #007bff;
+  /*background-color: #007bff;*/
+  background-color: #415e7c;
   color: white;
 }
 

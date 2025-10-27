@@ -24,4 +24,6 @@ __pycache__/
 /html/empresa.html
 /html/listado.html
 /html/listado.css
+/html/style_crudUsuarios.css
+/html/crudClientes123.html
 database.py

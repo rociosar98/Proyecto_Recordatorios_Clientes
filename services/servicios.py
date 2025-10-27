@@ -120,7 +120,8 @@ class ServiciosService():
         servicios = self.db.query(
             ServiciosClienteModel,
             ServiciosModel.nombre.label("servicio_nombre"),
-            ClientesModel.nombre.label("cliente_nombre")
+            ClientesModel.nombre.label("cliente_nombre"),
+            ClientesModel.apellido.label("cliente_apellido")
         ).join(
             ServiciosModel, ServiciosClienteModel.servicio_id == ServiciosModel.id
         ).join(
@@ -128,11 +129,12 @@ class ServiciosService():
         ).all()
 
         resultado = []
-        for sc, servicio_nombre, cliente_nombre in servicios:
+        for sc, servicio_nombre, cliente_nombre, cliente_apellido in servicios:
             resultado.append({
                 "id": sc.id,
                 "cliente_id": sc.cliente_id,
                 "cliente_nombre": cliente_nombre,
+                "cliente_apellido": cliente_apellido,
                 "servicio_id": sc.servicio_id,
                 "servicio_nombre": servicio_nombre,
                 "precio_congelado": sc.precio_congelado,

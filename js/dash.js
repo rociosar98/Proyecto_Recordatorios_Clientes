@@ -27,7 +27,7 @@ buttons.forEach(btn => {
       if (btn.id == "btnUsuarios") {
         window.location.href = "crudUsuarios.html"
       } else if (btn.id === "btnClientes") {
-        window.location.href = "clientes.html";
+        window.location.href = "crudClientes.html";
       } else if (btn.id === "btnServicios") {
         window.location.href = "crudServicios.html";
       } else if (btn.id === "btnAsignarServicio") {
@@ -36,10 +36,12 @@ buttons.forEach(btn => {
         window.location.href = "historial.html";
       } else if (btn.id === "btnListado") {
         window.location.href = "listadoMensual.html";
+      } else if (btn.id === "btnFacturacion") {
+        window.location.href = "pagos.html";
       } else if (btn.id === "logout") {
         // Logout simple
         sessionStorage.clear();
-        window.location.href = "login.html";
+        window.location.href = "index.html";
       }
     }
   });

@@ -40,6 +40,7 @@ class UsuarioUpdate(BaseModel):
 
 
 class UsuarioMini(BaseModel):
+    id: int
     nombre: str
     apellido: str
 

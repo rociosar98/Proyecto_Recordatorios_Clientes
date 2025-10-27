@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asiignar Servicios</title>
-    <link rel="stylesheet" href="clientes.css">
+    <link rel="stylesheet" href="/css/crud_estilos.css">
     <script type="module" src="/js/asignar_servicio.js"></script>
 </head>
 <body>
@@ -27,6 +27,16 @@
         <!-- Aquí se cargan los servicios -->
         </select>
 
+        <div id="cuotasContainer" style="display: none;">
+            <select id="cuotasSelect">
+                <option value="" disabled selected>Seleccionar cuotas</option>
+                <option value="1">1 cuota</option>
+                <option value="3">3 cuotas</option>
+                <option value="6">6 cuotas</option>
+                <option value="12">12 cuotas</option>
+            </select>
+        </div>
+
         <div class="form-buttons">
             <button type="submit" id="btnCrear">Asignar Servicio</button>
         </div>
@@ -43,6 +53,8 @@
             <th>Servicio</th>
             <th>Precio</th>
             <th>Desde</th>
+            <th>Vencimiento</th>
+            <th>Cuotas</th>
             <th>Acciones</th>
           </tr>
         </thead>

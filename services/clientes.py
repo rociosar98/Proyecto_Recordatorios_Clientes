@@ -1,6 +1,7 @@
 from models.clientes import Clientes as ClientesModel
-from schemas.clientes import Clientes
+from schemas.clientes import ClientesCreate, ClientesUpdate
 from typing import Optional
+from sqlalchemy.orm import joinedload
 
 class ClientesService():
     
@@ -8,20 +9,33 @@ class ClientesService():
         self.db = db
 
     def get_clientes(self):
-        result = self.db.query(ClientesModel).filter(ClientesModel.activo == True).all()
-        return result
+        return (
+            self.db.query(ClientesModel)
+            .options(joinedload(ClientesModel.responsable))  # carga los datos del responsable
+            .filter(ClientesModel.activo == True)
+            .all()
+        )
+        #result = self.db.query(ClientesModel).filter(ClientesModel.activo == True).all()
+        #return result
     
     def get_cliente_id(self, id):
-        result = self.db.query(ClientesModel).filter(ClientesModel.id == id).first()
-        return result
+        return (
+            self.db.query(ClientesModel)
+            .options(joinedload(ClientesModel.responsable))
+            .filter(ClientesModel.id == id)
+            .first()
+        )
+
+        #result = self.db.query(ClientesModel).filter(ClientesModel.id == id).first()
+        #return result
     
-    def create_cliente(self, Cliente: Clientes):
+    def create_cliente(self, Cliente: ClientesCreate):
         new_cliente = ClientesModel(**Cliente.model_dump(exclude={"id"}))
         self.db.add(new_cliente)
         self.db.commit()
         return
     
-    def update_cliente(self, id: int, data: Clientes):
+    def update_cliente(self, id: int, data: ClientesUpdate):
         cliente = self.db.query(ClientesModel).filter(ClientesModel.id == id).first()
         cliente.nombre = data.nombre
         cliente.apellido = data.apellido
