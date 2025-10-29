@@ -20,7 +20,7 @@
         <input type="text" id="nombre" placeholder="Nombre" required minlength="2" maxlength="20" />
         <input type="text" id="apellido" placeholder="Apellido" required minlength="2" maxlength="20" />
         <input type="email" id="correo" placeholder="Correo electrónico" required />
-        <input type="password" id="password" placeholder="Contraseña" required minlength="8" />
+        <input type="password" id="password" placeholder="Contraseña" required />
         <select id="rol" required>
           <option value="" disabled selected>Seleccionar rol</option>
           <option value="admin">Admin</option>
@@ -31,11 +31,14 @@
           <option value="lectura">Lectura</option>
           <option value="escritura">Escritura</option>
         </select>
-        <button type="submit">Crear usuario</button>
-        <input type="hidden" id="usuarioId" />
-        <button type="button" id="btnActualizar" style="display:none;">Actualizar usuario</button>
-        <button type="button" id="btnEliminar" style="display:none;">Eliminar usuario</button>
 
+        <div class="form-buttons">
+          <button type="submit" id="btnCrear">Crear usuario</button>
+          <input type="hidden" id="usuarioId" />
+          <button type="button" id="btnActualizar" style="display:none;">Actualizar usuario</button>
+          <button type="button" id="btnEliminar" style="display:none;">Eliminar usuario</button>
+        </div>
+        
       </form>
     </section>
 

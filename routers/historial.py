@@ -5,10 +5,13 @@ from datetime import date
 from database import get_database_session 
 from utils.dependencies import get_current_user, admin_required
 from services.historial import HistorialService
+from sqlalchemy import or_
 
 from schemas.pagos import PagoOut, HistorialPagoOut
 from models.pagos import Pagos as PagosModel
 from models.servicios import ServiciosCliente as ServiciosClienteModel
+from models.clientes import Clientes as ClientesModel
+from models.usuarios import Usuarios as UsuariosModel
 
 historial_router = APIRouter()
 
@@ -34,10 +37,24 @@ def historial_pagos(cliente_id: Optional[int] = None, db: Session = Depends(get_
 def listado_mensual(
     #fecha: date,
     condicion_iva: Optional[str] = None,
-    responsable_cuenta: Optional[str] = None,
+    responsable_nombre: Optional[str] = None,
     db: Session = Depends(get_database_session)
 ):
-    return HistorialService(db).listar_por_filtros(condicion_iva, responsable_cuenta)
+    #query = db.query(ServiciosClienteModel).join(ClientesModel)
+
+    #if condicion_iva:
+    #    query = query.filter(ClientesModel.condicion_iva == condicion_iva)
+    
+    #if responsable_nombre:
+    # Filtra por nombre o apellido del responsable
+    #    query = query.join(ClientesModel.responsable).filter(
+    #        or_(
+    #            UsuariosModel.nombre.ilike(f"%{responsable_nombre}%"),
+    #            UsuariosModel.apellido.ilike(f"%{responsable_nombre}%")
+    #        )
+    #    )
+
+    return HistorialService(db).listar_por_filtros(condicion_iva, responsable_nombre)
 
 @historial_router.get('/listado-entradas', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def listado_entradas(

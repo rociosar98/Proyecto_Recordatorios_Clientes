@@ -15,8 +15,14 @@
       <label for="filtroCliente">Filtrar por Cliente:</label>
       <input type="text" id="filtroCliente" placeholder="Ej: Juan Pérez" />
 
-      <label for="filtroFecha">Filtrar por Fecha:</label>
-      <input type="month" id="filtroFecha" />
+      <label for="filtroMes">Filtrar por Mes:</label>
+      <input type="month" id="filtroMes" />
+
+      <label for="filtroAnio">Filtrar por Año:</label>
+      <input type="number" id="filtroAnio" min="2000" max="2100" placeholder="YYYY" />
+
+      <label>Filtrar por Rango de Fechas:</label>
+      <input type="date" id="fechaDesde" /> a <input type="date" id="fechaHasta" />
 
       <label for="filtroEstado">Estado:</label>
       <select id="filtroEstado">

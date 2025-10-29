@@ -18,8 +18,9 @@
     <section class="cajaCrud">
       <h2>Crear nuevo cliente</h2>
       <form id="crudForm">
+
         <input type="hidden" id="clienteId" />
-        <input type="text" id="nombre" placeholder="Nombre" required minlength="5" maxlength="50" />
+        <input type="text" id="nombre" placeholder="Nombre" required />
         <input type="text" id="apellido" placeholder="Apellido" required />
         <input type="text" id="empresa" placeholder="Empresa" required>
         <input type="text" id="domicilio" placeholder="Domicilio" required>
@@ -36,7 +37,7 @@
           <option value="whatsapp">WhatsApp</option>
           <option value="ambos">Ambos</option>
         </select>
-        <input type="text" id="condicion_iva" placeholder="Condición IVA">
+        <input type="text" id="condicion_iva" placeholder="Condición IVA" required>
         <select id="responsable_id" required>
           <option value="" disabled selected>Seleccionar responsable</option>
         </select>

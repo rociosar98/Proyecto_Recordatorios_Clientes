@@ -7,6 +7,7 @@ from datetime import date
 from datetime import timedelta
 from sqlalchemy import extract
 from sqlalchemy.orm import joinedload
+from models.usuarios import Usuarios as UsuariosModel
 
 
 class HistorialService:
@@ -114,11 +115,12 @@ class HistorialService:
     #    return [s.to_dict() for s in resultados]  # Asumiendo que tienes método to_dict()
     
 
-    def listar_por_filtros(self, condicion_iva: Optional[str], responsable_cuenta: Optional[str]):
+    def listar_por_filtros(self, condicion_iva: Optional[str], responsable_nombre: Optional[str]):
         query = (
             self.db.query(PagosModel)
             .join(ServiciosClienteModel, PagosModel.servicio_cliente_id == ServiciosClienteModel.id)
             .join(ClientesModel, ServiciosClienteModel.cliente_id == ClientesModel.id)
+            .join(UsuariosModel, ClientesModel.responsable_id == UsuariosModel.id, isouter=True)
             .options(
                 joinedload(PagosModel.servicio_cliente)
                 .joinedload(ServiciosClienteModel.cliente)
@@ -129,8 +131,10 @@ class HistorialService:
         if condicion_iva:
             query = query.filter(ClientesModel.condicion_iva == condicion_iva)
 
-        if responsable_cuenta:
-            query = query.filter(ClientesModel.responsable_id == responsable_cuenta)
+        if responsable_nombre:
+            nombre_completo = (UsuariosModel.nombre + " " + UsuariosModel.apellido)
+            query = query.filter(nombre_completo.ilike(f"%{responsable_nombre}%"))
+            #query = query.filter(ClientesModel.responsable_id == responsable_cuenta)
 
         pagos = query.all()
 

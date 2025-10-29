@@ -156,6 +156,7 @@ table tr:hover {
 }
 
 /* Botones de acción en tabla */
+
 table td button {
   padding: 6px 10px;
   border: none;

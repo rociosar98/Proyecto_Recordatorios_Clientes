@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             document.querySelectorAll("#serviciosTabla tr").forEach(row => { //Después de llenar la tabla, esta línea selecciona todas las filas (<tr>) que estén dentro del elemento con id serviciosTabla, y las recorre una por una.
                 row.addEventListener("click", () => { //A cada fila le agrega un evento click. O sea, cuando el usuario hace clic en una fila de la tabla
-                    const id = row.getAttribute("data-id"); //Toma el atributo data-id que habías puesto antes en la fila y lo guarda en una variable.
+                    const id = row.getAttribute("data-id"); //Toma el atributo data-id y lo guarda en una variable.
                     seleccionarServicio(id);
                 });
             });

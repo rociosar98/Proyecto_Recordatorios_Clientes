@@ -14,7 +14,6 @@ from datetime import date
 from models.usuarios import Usuarios as UsuariosModel
 
 
-
 recordatorios_router = APIRouter()
 
 
@@ -117,8 +116,4 @@ def generar_listado_mensual(condicion_iva: Optional[str] = Query(default=None),r
         })
 
     return resultado
-
-
-
-
 

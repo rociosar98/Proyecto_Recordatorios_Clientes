@@ -27,12 +27,26 @@ class ResumenesService:
         for cliente in clientes:
             resumen = self._generar_resumen_cliente(cliente, datos_empresa)
 
-            # Según el método de aviso, se simula el envío
+            # Simulamos envío según método de aviso
             if cliente.metodo_aviso in ["mail", "ambos"]:
-                self._enviar_por_mail(cliente.correo, resumen)
+                if cliente.correo:
+                    self.enviar_por_mail(cliente.correo, resumen)
+                else:
+                    print(f"[WARN] Cliente {cliente.nombre} {cliente.apellido} no tiene correo definido")
 
             if cliente.metodo_aviso in ["whatsapp", "ambos"]:
-                self._enviar_por_whatsapp(cliente.whatsapp, resumen)
+                if cliente.whatsapp:
+                    self.enviar_por_whatsapp(cliente.whatsapp, resumen)
+                else:
+                    print(f"[WARN] Cliente {cliente.nombre} {cliente.apellido} no tiene WhatsApp definido")
+
+
+            # Según el método de aviso, se simula el envío
+            #if cliente.metodo_aviso in ["mail", "ambos"]:
+            #    self.enviar_por_mail(cliente.correo, resumen)
+
+            #if cliente.metodo_aviso in ["whatsapp", "ambos"]:
+            #    self.enviar_por_whatsapp(cliente.whatsapp, resumen)
 
             enviados.append(cliente.nombre + " " + cliente.apellido)
 
