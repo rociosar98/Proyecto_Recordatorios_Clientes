@@ -13,6 +13,272 @@ document.addEventListener("DOMContentLoaded", async () => {
   const tabla = document.getElementById("clientesTabla");
   const responsableSelect = document.getElementById("responsable_id");
 
+  // Botón único para alternar vista
+  const btnToggle = document.getElementById("btnToggleClientes");
+  let mostrandoActivos = true;
+
+  // ======================================================
+  // Cargar responsables
+  // ======================================================
+  async function cargarResponsables() {
+    try {
+      const res = await fetch("http://localhost:8000/usuarios", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("No se pudieron obtener los responsables");
+      const data = await res.json();
+
+      responsableSelect.innerHTML = `<option value="" disabled selected>Seleccionar responsable</option>`;
+      data.forEach((r) => {
+        responsableSelect.innerHTML += `<option value="${r.id}">${r.nombre} ${r.apellido}</option>`;
+      });
+    } catch (err) {
+      alert("Error al cargar responsables: " + err.message);
+    }
+  }
+
+  // ======================================================
+  // Cargar clientes (activos o dados de baja)
+  // ======================================================
+  async function cargarClientes() {
+    try {
+      const res = await fetchConAuth("http://localhost:8000/clientes");
+      if (!res.ok) throw new Error("No se pudieron obtener los clientes");
+
+      let data = await res.json();
+      // Filtrado en el front según el estado
+      data = mostrandoActivos ? data.filter(c => c.activo) : data.filter(c => !c.activo);
+
+      tabla.innerHTML = "";
+
+      if (data.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="14" style="text-align:center;">No hay clientes para mostrar</td></tr>`;
+        return;
+      }
+
+      data.forEach((c) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${c.nombre}</td>
+          <td>${c.apellido}</td>
+          <td>${c.empresa}</td>
+          <td>${c.domicilio}</td>
+          <td>${c.codigo_postal}</td>
+          <td>${c.localidad}</td>
+          <td>${c.provincia}</td>
+          <td>${c.pais}</td>
+          <td>${c.telefono}</td>
+          <td>${c.whatsapp}</td>
+          <td>${c.correo}</td>
+          <td>${c.metodo_aviso}</td>
+          <td>${c.condicion_iva}</td>
+          <td>${c.responsable ? c.responsable.nombre + " " + c.responsable.apellido : ""}</td>
+        `;
+
+        tr.addEventListener("click", () => {
+          document.getElementById("clienteId").value = c.id;
+          document.getElementById("nombre").value = c.nombre;
+          document.getElementById("apellido").value = c.apellido;
+          document.getElementById("empresa").value = c.empresa;
+          document.getElementById("domicilio").value = c.domicilio;
+          document.getElementById("codigo_postal").value = c.codigo_postal;
+          document.getElementById("localidad").value = c.localidad;
+          document.getElementById("provincia").value = c.provincia;
+          document.getElementById("pais").value = c.pais;
+          document.getElementById("telefono").value = c.telefono;
+          document.getElementById("whatsapp").value = c.whatsapp;
+          document.getElementById("correo").value = c.correo;
+          document.getElementById("metodo_aviso").value = c.metodo_aviso;
+          document.getElementById("condicion_iva").value = c.condicion_iva;
+          responsableSelect.value = c.responsable ? String(c.responsable.id) : "";
+
+          form.querySelector("button[type='submit']").style.display = "none";
+          btnActualizar.style.display = "inline-block";
+          btnEliminar.style.display = "inline-block";
+        });
+
+        tabla.appendChild(tr);
+      });
+    } catch (err) {
+      alert("Error al cargar los clientes: " + err.message);
+    }
+  }
+
+  // ======================================================
+  // Alternar entre clientes activos / dados de baja
+  // ======================================================
+  btnToggle.addEventListener("click", async () => {
+    mostrandoActivos = !mostrandoActivos;
+    btnToggle.textContent = mostrandoActivos ? "Ver clientes dados de baja" : "Ver clientes activos";
+    await cargarClientes();
+  });
+
+  // ======================================================
+  // Crear cliente
+  // ======================================================
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const nuevoCliente = {
+      nombre: document.getElementById("nombre").value,
+      apellido: document.getElementById("apellido").value,
+      empresa: document.getElementById("empresa").value,
+      domicilio: document.getElementById("domicilio").value,
+      codigo_postal: document.getElementById("codigo_postal").value,
+      localidad: document.getElementById("localidad").value,
+      provincia: document.getElementById("provincia").value,
+      pais: document.getElementById("pais").value,
+      telefono: document.getElementById("telefono").value,
+      whatsapp: document.getElementById("whatsapp").value,
+      correo: document.getElementById("correo").value,
+      metodo_aviso: document.getElementById("metodo_aviso").value,
+      condicion_iva: document.getElementById("condicion_iva").value,
+      responsable_id: parseInt(responsableSelect.value),
+      activo: true,
+    };
+
+    try {
+      const res = await fetch("http://localhost:8000/clientes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(nuevoCliente),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error("Error al crear el cliente: " + JSON.stringify(errorData));
+      }
+
+      alert("Cliente creado correctamente");
+      form.reset();
+      await cargarClientes();
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  });
+
+  // ======================================================
+  // Actualizar cliente
+  // ======================================================
+  const btnActualizar = document.getElementById("btnActualizar");
+  const btnEliminar = document.getElementById("btnEliminar");
+
+  btnActualizar.addEventListener("click", async () => {
+    const id = document.getElementById("clienteId").value;
+    if (!id) {
+      alert("Seleccioná un cliente antes de actualizar");
+      return;
+    }
+
+    const clienteActualizado = {
+      nombre: document.getElementById("nombre").value,
+      apellido: document.getElementById("apellido").value,
+      empresa: document.getElementById("empresa").value,
+      domicilio: document.getElementById("domicilio").value,
+      codigo_postal: document.getElementById("codigo_postal").value,
+      localidad: document.getElementById("localidad").value,
+      provincia: document.getElementById("provincia").value,
+      pais: document.getElementById("pais").value,
+      telefono: document.getElementById("telefono").value,
+      whatsapp: document.getElementById("whatsapp").value,
+      correo: document.getElementById("correo").value,
+      metodo_aviso: document.getElementById("metodo_aviso").value,
+      condicion_iva: document.getElementById("condicion_iva").value,
+      responsable_id: parseInt(responsableSelect.value),
+      activo: true,
+    };
+
+    try {
+      const res = await fetch(`http://localhost:8000/clientes/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(clienteActualizado),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        const detalle = data.detail || data;
+        alert("Error al actualizar el cliente: " + JSON.stringify(detalle));
+        return;
+      }
+
+      alert("Cliente actualizado correctamente");
+      form.reset();
+      btnActualizar.style.display = "none";
+      btnEliminar.style.display = "none";
+      form.querySelector("button[type='submit']").style.display = "inline-block";
+      await cargarClientes();
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  });
+
+  // ======================================================
+  // Eliminar cliente (dar de baja)
+  // ======================================================
+  btnEliminar.addEventListener("click", async () => {
+    const id = document.getElementById("clienteId").value;
+    if (!confirm("¿Seguro que querés eliminar este cliente?")) return;
+
+    try {
+      const res = await fetch(`http://localhost:8000/clientes/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Error al eliminar el cliente");
+
+      alert("Cliente eliminado correctamente (dado de baja)");
+      form.reset();
+      btnActualizar.style.display = "none";
+      btnEliminar.style.display = "none";
+      form.querySelector("button[type='submit']").style.display = "inline-block";
+      await cargarClientes();
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  });
+
+  // Inicialización
+  await cargarResponsables();
+  await cargarClientes();
+});
+
+
+
+/*
+import { fetchConAuth } from "./fetchAuth.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = sessionStorage.getItem("token");
+  const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+  const saludo = document.getElementById("adminSaludo");
+
+  if (usuario) {
+    saludo.textContent = `Hola admin ${usuario.nombre} ${usuario.apellido} 👋`;
+  }
+
+  const form = document.getElementById("crudForm");
+  const tabla = document.getElementById("clientesTabla");
+  const responsableSelect = document.getElementById("responsable_id");
+
+  const btnActivos = document.getElementById("btnClientesActivos");
+  const btnBaja = document.getElementById("btnClientesBaja");
+
+  let activo = true; // por defecto mostramos clientes activos
+
+
   // Cargar responsables en el select
   async function cargarResponsables() {
     try {
@@ -37,12 +303,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Cargar clientes
   async function cargarClientes() {
     try {
-      const res = await fetchConAuth("http://localhost:8000/clientes");
+      const url = new URL("http://localhost:8000/clientes");
+      url.searchParams.append("activo", activo);
 
+      const res = await fetchConAuth(url.href);
       if (!res.ok) throw new Error("No se pudieron obtener los clientes");
+
       const data = await res.json();
 
       tabla.innerHTML = "";
+      if (!data.length) {
+        tabla.innerHTML = `<tr><td colspan="14">No se encontraron clientes</td></tr>`;
+        return;
+      }
       data.forEach((c) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -232,3 +505,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+*/

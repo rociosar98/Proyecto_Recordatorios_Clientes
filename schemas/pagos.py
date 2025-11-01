@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from datetime import date
 from typing import Optional
+from schemas.clientes import ClientesMini
+#from schemas.servicios import ServiciosMini
 
 class PagoIn(BaseModel):
     servicio_cliente_id: int
@@ -26,7 +28,9 @@ class HistorialPagoOut(BaseModel):
     fecha_facturacion: date
     fecha_pago: Optional[date]
     estado: str
-    cliente: str
+    cliente: ClientesMini        # ahora es un objeto
+    #servicio: ServiciosMini
+    #cliente: str
     servicio: str
 
     class Config:

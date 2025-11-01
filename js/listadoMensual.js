@@ -48,13 +48,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Filtrado en el front
   function aplicarFiltros() {
-    const ivaSeleccionado = filtroIVA.value;
+    const ivaSeleccionado = filtroIVA.value.trim().toLowerCase();
     const textoResponsable = filtroResponsable.value.trim().toLowerCase();
 
     const filtrado = datosListado.filter(pago => {
-      const coincideIVA = ivaSeleccionado
-        ? pago.cliente?.condicion_iva === ivaSeleccionado
-        : true;
+      const condicionIVA = (pago.cliente?.condicion_iva || "").trim().toLowerCase();
+      const coincideIVA = ivaSeleccionado ? condicionIVA === ivaSeleccionado : true;
+      //const coincideIVA = ivaSeleccionado
+        //? pago.cliente?.condicion_iva === ivaSeleccionado
+        //: true;
 
       const nombreResponsable = `${pago.cliente?.responsable?.nombre || ""} ${pago.cliente?.responsable?.apellido || ""}`.toLowerCase();
       const coincideResponsable = textoResponsable
@@ -91,13 +93,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       tr.innerHTML = `
         <td>${pago.cliente?.nombre || ""} ${pago.cliente?.apellido || ""}</td>
+        <td>${pago.cliente?.empresa || "-"}</td>
         <td>${pago.cliente?.condicion_iva || "-"}</td>
         <td>${pago.cliente?.responsable?.nombre || ""} ${pago.cliente?.responsable?.apellido || "-"}</td>
         <td>${pago.servicio?.nombre || "-"}</td>
         <td>${pago.fecha_facturacion || "-"}</td>
         <td>${pago.fecha_pago || "-"}</td>
         <td>$${pago.monto?.toLocaleString() || "-"}</td>
-        <td>${pago.estado}</td>
+        <td class="estado">${pago.estado}</td>
       `;
 
       tabla.appendChild(tr);

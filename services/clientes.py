@@ -8,13 +8,25 @@ class ClientesService():
     def __init__(self, db) -> None:
         self.db = db
 
-    def get_clientes(self):
-        return (
+    def get_clientes(self, activo: Optional[bool] = None):
+        query = (
             self.db.query(ClientesModel)
-            .options(joinedload(ClientesModel.responsable))  # carga los datos del responsable
-            .filter(ClientesModel.activo == True)
-            .all()
+            .options(joinedload(ClientesModel.responsable))
         )
+
+        if activo is not None:
+            query = query.filter(ClientesModel.activo == activo)
+
+        return query.all()
+
+
+
+        #return (
+        #    self.db.query(ClientesModel)
+        #    .options(joinedload(ClientesModel.responsable))  # carga los datos del responsable
+        #    .filter(ClientesModel.activo == True)
+        #    .all()
+        #)
         #result = self.db.query(ClientesModel).filter(ClientesModel.activo == True).all()
         #return result
     

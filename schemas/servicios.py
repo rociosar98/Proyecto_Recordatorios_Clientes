@@ -105,3 +105,7 @@ class ServicioAsignadoDetalle(BaseModel):
 
     class Config:
         from_attributes = True
+
+#class ServiciosMini(BaseModel):
+#    id: int
+#    nombre: str

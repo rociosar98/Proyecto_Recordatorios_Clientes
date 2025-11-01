@@ -13,8 +13,8 @@ clientes_router = APIRouter()
 
 @clientes_router.get('/clientes', tags=['Clientes'], response_model=List[ClientesOut],
                      status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])
-def get_clientes(db: Session = Depends(get_database_session)):
-    return ClientesService(db).get_clientes()
+def get_clientes(activo: Optional[bool] = None, db: Session = Depends(get_database_session)):
+    return ClientesService(db).get_clientes(activo)
 
 @clientes_router.get('/clientes/{id}', tags=['Clientes'], response_model=ClientesOut,
                      status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])

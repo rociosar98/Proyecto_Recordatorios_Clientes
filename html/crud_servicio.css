@@ -1,6 +1,3 @@
-/* style_crudUsuarios.css */
-
-/* Reset básico */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -161,3 +158,23 @@ tbody tr:hover {
   background-color: #800000;
 }
 
+.botones-filtro {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.botones-filtro button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  background-color: #1976d2;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.botones-filtro button:hover {
+  background-color: #0d47a1;
+}

@@ -35,14 +35,17 @@ class HistorialService:
         pagos = query.all()
 
         resultado = []
-        for pago in pagos:
-            pagos_relacionados = self.db.query(PagosModel).filter_by(servicio_cliente_id = pago.servicio_cliente_id).all()
-            total_pagado = sum(p.monto for p in pagos_relacionados)
 
+        for pago in pagos:
+            pagos_relacionados = (
+                self.db.query(PagosModel)
+                .filter_by(servicio_cliente_id=pago.servicio_cliente_id)
+                .all()
+            )
+            total_pagado = sum(p.monto for p in pagos_relacionados)
             monto_total = pago.servicio_cliente.precio_congelado
 
-            print(f"ServicioClienteID: {pago.servicio_cliente_id}, Total pagado: {total_pagado}, Monto total: {monto_total}")
-
+            # Determinar estado del pago
             if total_pagado >= monto_total:
                 estado = "pagado"
             elif total_pagado > 0:
@@ -50,13 +53,26 @@ class HistorialService:
             else:
                 estado = "pendiente"
 
+            cliente = pago.servicio_cliente.cliente
+            servicio = pago.servicio_cliente.servicio
+
             resultado.append({
                 "monto": pago.monto,
                 "fecha_facturacion": pago.fecha_facturacion,
                 "fecha_pago": pago.fecha_pago,
                 "estado": estado,
-                "cliente": pago.servicio_cliente.cliente.nombre,
+                "cliente": {
+                    "id": cliente.id,
+                    "nombre": cliente.nombre,
+                    "apellido": cliente.apellido,  # 👈 agregado
+                    "empresa": cliente.empresa,
+                    "condicion_iva": cliente.condicion_iva,
+                },
+                #"servicio": {
+                #    "id": servicio.id,
+                #    "nombre": servicio.nombre,
                 "servicio": pago.servicio_cliente.servicio.nombre
+                #}
             })
 
         return resultado
@@ -151,6 +167,7 @@ class HistorialService:
                 "cliente": {
                     "id": pago.servicio_cliente.cliente.id,
                     "nombre": pago.servicio_cliente.cliente.nombre,
+                    "apellido": pago.servicio_cliente.cliente.apellido,
                     "empresa": pago.servicio_cliente.cliente.empresa,
                     "condicion_iva": pago.servicio_cliente.cliente.condicion_iva,
                     "responsable": {

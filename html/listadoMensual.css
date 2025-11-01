@@ -79,6 +79,11 @@ tbody tr:hover {
   background-color: #f1f1f1;
 }
 
+td.estado {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 /* Estado: Fila completa de color según el estado */
 .estado-pagado {
   background-color: #d4edda;

@@ -50,6 +50,13 @@ class ClientesOut(BaseModel):
         from_attributes = True
 
 
+class ClientesMini(BaseModel):
+    id: int
+    nombre: str
+    apellido: str
+    empresa: str
+
+
 #class Clientes(BaseModel):
 #    nombre: str
 #    apellido: str

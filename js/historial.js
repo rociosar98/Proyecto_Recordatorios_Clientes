@@ -49,9 +49,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     //const fechaSeleccionada = filtroFecha.value;
 
     const filtrado = datosHistorial.filter(pago => {
+      // filtrar por clientes (nombre + apellido)
+      const nombreCliente = `${pago.cliente?.nombre || ""} ${pago.cliente?.apellido || ""}`.toLowerCase();
+      const coincideCliente = clienteTexto ? nombreCliente.includes(clienteTexto) : true;
+
       // filtrar por clientes
-      const nombreCliente = (pago.cliente || "").toLowerCase();
-      const coincideCliente = nombreCliente.includes(clienteTexto);
+      //const nombreCliente = (pago.cliente || "").toLowerCase();
+      //const coincideCliente = nombreCliente.includes(clienteTexto);
 
       // filtrar por estado
       const coincideEstado = estadoSeleccionado ? pago.estado === estadoSeleccionado : true;
@@ -136,9 +140,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     data.forEach(pago => {
-      const clienteNombre = pago.cliente || "-";
+      //const clienteNombre = pago.cliente || "-";
+      const clienteNombre = `${pago.cliente?.nombre || ""} ${pago.cliente?.apellido || ""}`.trim() || "-";
+      const clienteEmpresa = pago.cliente?.empresa || "-";
       const servicioNombre = pago.servicio || "-";
-      const monto = pago.monto || "-";
+      //const servicioNombre = pago.servicio?.nombre || "-";
+      //const monto = pago.monto || "-";
+      const monto = pago.monto?.toLocaleString() || "-";
       const fechaFacturacion = pago.fecha_facturacion || "-";
       const fechaPago = pago.fecha_pago || "-";
       const estado = pago.estado || "-";
@@ -153,6 +161,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       tr.innerHTML = `
         <td>${clienteNombre}</td>
+        <td>${clienteEmpresa}</td>
         <td>${servicioNombre}</td>
         <td>$${monto}</td>
         <td>${fechaFacturacion}</td>

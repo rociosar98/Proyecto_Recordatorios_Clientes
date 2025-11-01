@@ -30,10 +30,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             <button class="ver-items" data-id="${r.servicio_cliente_id}">📄</button>
           </td>
           <td>${r.servicio}</td>
-          <td>$${r.monto_total.toFixed(2)}</td>
-          <td>$${r.total_pagado.toFixed(2)}</td>
-          <td>$${r.saldo.toFixed(2)}</td>
-          <td class="saldo-favor">${r.saldo_a_favor > 0 ? "$" + r.saldo_a_favor.toFixed(2) : "-"}</td> <!-- 🟢 NUEVO -->
+          <td>$${r.monto_total?.toLocaleString() || "-"}</td>
+          
+          <td>$${r.total_pagado?.toLocaleString() || "-"}</td>
+          <td>$${r.saldo?.toLocaleString() || "-"}</td>
+          <td class="saldo-favor">${r.saldo_a_favor > 0 ? "$" + r.saldo_a_favor?.toLocaleString() : "-"}</td>
           <td>
             <button class="registrar-pago" data-id="${r.servicio_cliente_id}">Registrar Pago</button>
           </td>

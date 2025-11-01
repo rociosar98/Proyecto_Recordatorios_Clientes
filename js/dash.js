@@ -24,6 +24,7 @@ buttons.forEach(btn => {
       target.classList.add("visible");
     } else {
       // Si no hay sección interna, redirigir a otra página (opcional)
+      // Redirecciones a otras páginas
       if (btn.id == "btnUsuarios") {
         window.location.href = "crudUsuarios.html"
       } else if (btn.id === "btnClientes") {
@@ -47,42 +48,89 @@ buttons.forEach(btn => {
   });
 });
 
-// Manejo dinámico de los botones CRUD
-document.querySelectorAll("[data-action][data-module]").forEach(button => {
-  button.addEventListener("click", () => {
-    const accion = button.dataset.action;
-    const modulo = button.dataset.module;
 
-    // Aquí defines lo que quieres hacer según la acción y el módulo
-    console.log(`Acción: ${accion} - Módulo: ${modulo}`);
+// FORMULARIO CONFIGURACIÓN EMPRESA
+const configForm = document.getElementById("configForm");
 
-    // Ejemplo: abrir un modal o redirigir
-    switch (accion) {
-      case "crear":
-        if (modulo === "cliente") {
-          window.location.href = "crudClientes.html";
-        } else if (modulo === "servicio") {
-          window.location.href = "crudServicios.html";
-        } else {
-          alert(`Crear ${modulo} aún no implementado`);
-        }
-        break;
+// Cargar datos existentes al iniciar
+window.addEventListener("DOMContentLoaded", async () => {
+  const token = sessionStorage.getItem("token");
 
-      case "actualizar":
-        alert(`Abrir formulario para ACTUALIZAR ${modulo}`);
-        break;
+  try {
+    const response = await fetch("http://localhost:8000/empresa", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
 
-      case "eliminar":
-        alert(`Proceder a ELIMINAR ${modulo}`);
-        break;
+    if (response.ok) {
+      const datos = await response.json();
 
-      case "ver":
-        alert(`Mostrar lista de ${modulo}s`);
-        break;
+      document.getElementById("cbu").value = datos.cbu || "";
+      document.getElementById("cvu").value = datos.cvu || "";
 
-      default:
-        console.warn("Acción desconocida");
+      const formasPagoArray = (datos.formas_pago || "")
+        .split(",")
+        .map(f => f.trim());
+
+      document.querySelectorAll("#formasPago input[type=checkbox]").forEach(cb => {
+        cb.checked = formasPagoArray.includes(cb.value);
+      });
+    } else {
+      console.warn("No se pudieron cargar los datos de la empresa (status)", response.status);
     }
-  });
+  } catch (error) {
+    console.error("❌ Error al obtener los datos de la empresa:", error);
+  }
+});
+
+// Guardar configuración
+configForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const cbu = document.getElementById("cbu").value.trim();
+  const cvu = document.getElementById("cvu").value.trim();
+  const formasPago = Array.from(
+    document.querySelectorAll("#formasPago input[type=checkbox]:checked")
+  )
+    .map(cb => cb.value)
+    .join(", ");
+
+  const datos = { cbu, cvu, formas_pago: formasPago };
+  const token = sessionStorage.getItem("token");
+
+  if (!token) {
+    alert("⚠️ No hay token de sesión. Iniciá sesión como admin nuevamente.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8000/empresa", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(datos),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        alert("⚠️ Sesión expirada o no autorizada. Iniciá sesión nuevamente.");
+        sessionStorage.clear();
+        window.location.href = "index.html";
+        return;
+      }
+
+      const errText = await response.text();
+      throw new Error(`Error al guardar (status ${response.status}): ${errText}`);
+    }
+
+    const result = await response.json();
+    console.log("✅ Datos guardados:", result);
+    alert("✅ Datos de la empresa guardados correctamente!");
+  } catch (error) {
+    alert("❌ Error al guardar: " + error.message);
+    console.error(error);
+  }
 });
 
