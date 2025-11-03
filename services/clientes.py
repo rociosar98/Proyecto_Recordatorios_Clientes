@@ -18,17 +18,7 @@ class ClientesService():
             query = query.filter(ClientesModel.activo == activo)
 
         return query.all()
-
-
-
-        #return (
-        #    self.db.query(ClientesModel)
-        #    .options(joinedload(ClientesModel.responsable))  # carga los datos del responsable
-        #    .filter(ClientesModel.activo == True)
-        #    .all()
-        #)
-        #result = self.db.query(ClientesModel).filter(ClientesModel.activo == True).all()
-        #return result
+     
     
     def get_cliente_id(self, id):
         return (
@@ -38,8 +28,6 @@ class ClientesService():
             .first()
         )
 
-        #result = self.db.query(ClientesModel).filter(ClientesModel.id == id).first()
-        #return result
     
     def create_cliente(self, Cliente: ClientesCreate):
         new_cliente = ClientesModel(**Cliente.model_dump(exclude={"id"}))
@@ -69,11 +57,7 @@ class ClientesService():
     def delete_cliente(self, id: int):
         cliente = self.db.query(ClientesModel).filter(ClientesModel.id == id).first()
         cliente.activo = False
-        #cliente.fecha_baja = datetime.utcnow()
         self.db.commit()
         return
 
-    #def delete_cliente(self, id: int):
-    #    self.db.query(ClientesModel).filter(ClientesModel.id == id).delete()
-    #    self.db.commit()
-    #    return
+ 

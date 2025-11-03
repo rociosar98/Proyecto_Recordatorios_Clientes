@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_database_session
-from schemas.pagos import PagoIn, PagoOut, ResumenPagoOut
+from schemas.pagos import PagoIn, PagoOut, ResumenPagoOut, PagoItem
 from services.pagos import PagosService
 from typing import List
 
@@ -22,11 +22,21 @@ def registrar_pago(data: PagoIn, db: Session = Depends(get_database_session)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
+    
 @pagos_router.get('/pagos', tags=['Pagos'], response_model=List[PagoOut])
 def listar_pagos(db: Session = Depends(get_database_session)):
     return PagosService(db).listar_pagos()
+
 
 @pagos_router.get('/pagos/resumen',tags=['Pagos'], response_model=List[ResumenPagoOut])
 def get_resumen_pagos(db: Session = Depends(get_database_session)):
     resumenes = PagosService(db).obtener_resumen_pagos()
     return resumenes
+
+@pagos_router.get("/items/{servicio_cliente_id}", tags=['Pagos'], response_model=List[PagoItem], status_code=200)
+def obtener_items(servicio_cliente_id: int, db: Session = Depends(get_database_session)):
+    service = PagosService(db)
+    items = service.get_items_mes(servicio_cliente_id)
+    if not items:
+        raise HTTPException(status_code=404, detail="No se encontraron items para este mes")
+    return items

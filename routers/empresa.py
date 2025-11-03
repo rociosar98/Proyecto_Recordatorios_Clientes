@@ -2,9 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from typing import Optional, List
 from database import get_database_session
-from fastapi.encoders import jsonable_encoder
 from middlewares.jwt_bearer import JWTBearer
 from models.datos_empresa import DatosEmpresa as DatosEmpresaModel
 from schemas.datos_empresa import DatosEmpresa

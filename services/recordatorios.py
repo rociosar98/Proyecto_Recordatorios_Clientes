@@ -247,13 +247,6 @@ class RecordatoriosService():
                     print(f"[ADVERTENCIA] Recordatorio ID {r.id} sin cliente asociado.")
                     continue
 
-                metodo = r.metodo_envio
-                contacto = cliente.correo if metodo == "mail" else cliente.telefono
-
-                if not contacto:
-                    print(f"[ADVERTENCIA] Cliente {cliente.nombre} no tiene contacto para '{metodo}'")
-                    continue
-
                 mensaje = f"""
                 📢 *Aviso de Pago Pendiente*
 
@@ -264,12 +257,22 @@ class RecordatoriosService():
                 ⚠️ Tipo de aviso: {r.tipo_recordatorio.upper()}
                 """
 
+                metodo = r.metodo_envio
+                contacto_mail = cliente.correo
+                contacto_whatsapp = cliente.telefono
+                
+
                 if metodo == "mail":
-                    self.enviar_email(destinatario=contacto, asunto="Aviso de Deuda", cuerpo=mensaje)
-                    print(f"[EMAIL ENVIADO] A: {contacto} | Cliente: {cliente.nombre}")
+                    self.enviar_email(destinatario=contacto_mail, asunto="Aviso de Deuda", cuerpo=mensaje)
+                    print(f"[EMAIL ENVIADO] A: {contacto_mail} | Cliente: {cliente.nombre} {cliente.apellido}")
                 elif metodo == "whatsapp":
-                    self.enviar_whatsapp(numero=contacto, mensaje=mensaje)
-                    print(f"[WHATSAPP ENVIADO] A: {contacto} | Cliente: {cliente.nombre}")
+                    self.enviar_whatsapp(numero=contacto_whatsapp, mensaje=mensaje)
+                    print(f"[WHATSAPP ENVIADO] A: {contacto_whatsapp} | Cliente: {cliente.nombre} {cliente.apellido}")
+                elif metodo == "ambos":
+                    self.enviar_email(destinatario=contacto_mail, asunto="Aviso de Deuda", cuerpo=mensaje)
+                    print(f"[EMAIL ENVIADO] A: {contacto_mail} | Cliente: {cliente.nombre}{cliente.apellido}")
+                    self.enviar_whatsapp(numero=contacto_whatsapp, mensaje=mensaje)
+                    print(f"[WHATSAPP ENVIADO] A: {contacto_whatsapp} | Cliente: {cliente.nombre} {cliente.apellido}")
                 else:
                     print(f"[ERROR] Método de aviso no soportado: {metodo}")
                     continue
@@ -332,40 +335,40 @@ class RecordatoriosService():
 
 
     
-    def registrar_pago_manual(self, servicio_cliente_id: int, tipo_pago: str):
-        """
-        tipo_pago: "parcial" o "pagado"
-        """
-        if tipo_pago not in ["parcial", "pagado"]:
-            raise ValueError("Tipo de pago inválido")
+    # def registrar_pago_manual(self, servicio_cliente_id: int, tipo_pago: str):
+    #     """
+    #     tipo_pago: "parcial" o "pagado"
+    #     """
+    #     if tipo_pago not in ["parcial", "pagado"]:
+    #         raise ValueError("Tipo de pago inválido")
 
-        hoy = date.today()
-        primer_dia_mes = hoy.replace(day=1)
+    #     hoy = date.today()
+    #     primer_dia_mes = hoy.replace(day=1)
 
-        # 1. Registrar el pago en la tabla pagos
-        nuevo_pago = PagosModel(
-            servicio_cliente_id=servicio_cliente_id,
-            monto=0,  # Si no hay monto, podés poner 0 o pedirlo en el request
-            fecha_pago=hoy,
-            observaciones=f"Pago registrado manualmente como '{tipo_pago}'"
-        )
-        self.db.add(nuevo_pago)
+    #     # 1. Registrar el pago en la tabla pagos
+    #     nuevo_pago = PagosModel(
+    #         servicio_cliente_id = servicio_cliente_id,
+    #         monto = 0,  # Si no hay monto, podés poner 0 o pedirlo en el request
+    #         fecha_pago = hoy,
+    #         observaciones = f"Pago registrado manualmente como '{tipo_pago}'"
+    #     )
+    #     self.db.add(nuevo_pago)
 
-        # 2. Actualizar estado de recordatorios del mes
-        recordatorios = self.db.query(Recordatorios).filter(
-            Recordatorios.servicio_cliente_id == servicio_cliente_id,
-            Recordatorios.fecha_recordatorio >= primer_dia_mes,
-            Recordatorios.fecha_recordatorio <= hoy,
-            Recordatorios.tipo_recordatorio.in_(["inicial", "recordatorio", "mora", "corte"])
-        ).all()
+    #     # 2. Actualizar estado de recordatorios del mes
+    #     recordatorios = self.db.query(Recordatorios).filter(
+    #         Recordatorios.servicio_cliente_id == servicio_cliente_id,
+    #         Recordatorios.fecha_recordatorio >= primer_dia_mes,
+    #         Recordatorios.fecha_recordatorio <= hoy,
+    #         Recordatorios.tipo_recordatorio.in_(["inicial", "recordatorio", "mora", "corte"])
+    #     ).all()
 
-        if not recordatorios:
-            return 0  # Nada para actualizar
+    #     if not recordatorios:
+    #         return 0  # Nada para actualizar
 
-        for r in recordatorios:
-            r.estado_pago = tipo_pago
+    #     for r in recordatorios:
+    #         r.estado_pago = tipo_pago
 
-        self.db.commit()
-        return len(recordatorios)
+    #     self.db.commit()
+    #     return len(recordatorios)
     
    

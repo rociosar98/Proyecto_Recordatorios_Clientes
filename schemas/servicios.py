@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator, ValidationError
+from pydantic import BaseModel, model_validator, ValidationError
 from typing import Optional, List
 from datetime import date
 from core.enums import TipoServicio, Recurrencia

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Pagos</title>
-  <link rel="stylesheet" href="pagos.css">
+  <link rel="stylesheet" href="/css/pagos.css">
   <script type="module" src="/js/pagos.js"></script>
 </head>
 <body>
@@ -30,6 +30,20 @@
           <!-- Filas generadas por JS -->
         </tbody>
       </table>
+    </section>
+
+    <!-- 🔔 Nueva sección para alertas de deuda -->
+    <section class="alertas-deuda">
+      <h2>Alertas de Deuda</h2>
+      <p>Podés enviar recordatorios automáticos a los clientes impagos:</p>
+
+      <div class="botones-alertas">
+        <button id="btnRecordatorio" class="alerta-btn">📩 Recordatorio (Día 10)</button>
+        <button id="btnMora" class="alerta-btn">⚠️ Alerta de Mora (Día 20)</button>
+        <button id="btnCorte" class="alerta-btn">⛔ Aviso de Corte (Día 28)</button>
+      </div>
+
+      <p id="estadoEnvio" class="estado-envio"></p>
     </section>
 
     <!-- Modal para items del mes -->
@@ -60,3 +74,4 @@
   </main>
 </body>
 </html>
+

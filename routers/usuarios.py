@@ -60,12 +60,6 @@ def login(user: User, db=Depends(get_database_session)):
 def get_usuarios(db: Session = Depends(get_database_session)):
     return UsuariosService(db).get_usuarios()
 
-#@usuarios_router.get("/usuarios", tags=["Usuarios"], status_code=status.HTTP_200_OK,
-#                    response_model=List[UsuarioPublico], dependencies=[Depends(JWTBearer())])
-#def get_usuarios(db=Depends(get_database_session)):
-#    result = UsuariosService(db).get_usuarios()
-#    return result
-
 
 @usuarios_router.get('/usuarios/{id}', tags=['Usuarios'], response_model=UsuarioPublico,
                      status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
@@ -74,6 +68,7 @@ def get_usuario_id(id: int = Path(ge=1, le=2000), db=Depends(get_database_sessio
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
     return result
+
 
 @usuarios_router.post('/usuarios', tags=['Usuarios'], response_model=dict, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_required)])
 def create_usuarios(usuario: Usuarios,db: Session = Depends(get_database_session)) -> dict:
@@ -93,16 +88,6 @@ def update_usuarios(id: int, usuarios: UsuarioUpdate, db = Depends(get_database_
     return JSONResponse(status_code=200, content={"message": "Se ha modificado el usuario"})
 
 
-@usuarios_router.put('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
-def update_usuarios(id: int, usuarios: UsuarioUpdate, db = Depends(get_database_session)) -> dict:
-    result = UsuariosService(db).get_usuario_id(id)
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
-    UsuariosService(db).update_usuarios(id, usuarios)
-    return JSONResponse(status_code=200, content={"message": "Se ha modificado el usuario"})
-
-
-
 @usuarios_router.delete('/usuarios/{id}', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
 def delete_usuarios(id: int, db = Depends(get_database_session)) -> dict:
     result: UsuarioModel = db.query(UsuarioModel).filter(UsuarioModel.id == id).first()
@@ -119,20 +104,4 @@ def otorgar_permiso(id: int, usuarios: UsuarioPermiso, db = Depends(get_database
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
     UsuariosService(db).otorgar_permiso_usuario(id, usuarios)
     return JSONResponse(status_code=200, content={"message": "Permiso actualizado correctamente"})
-
-
-#@usuarios_router.put('/usuarios/{id}/permiso',tags=['Usuarios'],response_model=dict,
-#status_code=200,dependencies=[Depends(JWTBearer())])
-#def otorgar_permiso(id: int, permiso_data: UsuarioPermisoIn,db: Session = Depends(get_database_session),
-#    usuario_actual: UsuariosModel = Depends(get_current_user)) -> dict:
-#    if usuario_actual.rol != "admin":
-#        raise HTTPException(status_code=403, detail="Solo los administradores pueden otorgar permisos")
-
-#    usuario = UsuariosService(db).get_usuario_id(id)
-#    if not usuario:
-#        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-#    UsuariosService(db).otorgar_permiso_usuario(id, permiso_data.permiso)
-#    return {"message": "Permiso actualizado correctamente"}
-    
 

@@ -43,4 +43,5 @@ class ServiciosCliente(Base):
 
     recordatorios = relationship("Recordatorios", back_populates="servicio_cliente", cascade="all, delete-orphan")
     pagos = relationship("Pagos", back_populates="servicio_cliente")
+    items = relationship("PagoItem", back_populates="servicio_cliente")
 

@@ -28,7 +28,7 @@ class HistorialPagoOut(BaseModel):
     fecha_facturacion: date
     fecha_pago: Optional[date]
     estado: str
-    cliente: ClientesMini        # ahora es un objeto
+    cliente: ClientesMini
     #servicio: ServiciosMini
     #cliente: str
     servicio: str
@@ -45,7 +45,7 @@ class ResumenPagoOut(BaseModel):
     monto_total: float
     total_pagado: float
     estado: str  # "pagado" | "parcial" | "impago"
-    saldo: float  # monto que falta (o crédito a favor si es negativo)
+    saldo: float
     saldo_a_favor: float
 
     class Config:
@@ -59,6 +59,13 @@ class EntradaPagoOut(BaseModel):
     fecha_facturacion: date
     fecha_pago: Optional[date]
     observaciones: Optional[str]
+
+    class Config:
+        from_attributes = True
+
+class PagoItem(BaseModel):
+    descripcion: str
+    monto: float
 
     class Config:
         from_attributes = True

@@ -13,6 +13,7 @@ from models.servicios import ServiciosCliente as ServiciosClienteModel
 from models.clientes import Clientes as ClientesModel
 from models.usuarios import Usuarios as UsuariosModel
 
+
 historial_router = APIRouter()
 
 
@@ -22,15 +23,6 @@ def historial_pagos(cliente_id: Optional[int] = None, db: Session = Depends(get_
     if not pagos:
         raise HTTPException(status_code=404, detail="No se encontraron pagos")
     return pagos
-
-
-#@historial_router.get('/historial/{cliente_id}', tags=['Historial'], response_model=List[PagoOut], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
-#def historial_pagos(cliente_id: int, db: Session = Depends(get_database_session)):
-#    pagos = HistorialService(db).obtener_historial(cliente_id)
-#    if not pagos:
-#        raise HTTPException(status_code=404, detail="No se encontraron pagos")
-#    return pagos
-    #return HistorialService(db).obtener_historial(cliente_id)
 
 
 @historial_router.get('/listado-mensual', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
@@ -77,14 +69,3 @@ def listado_entradas(
             raise HTTPException(status_code=400, detail="Debe especificar fecha_inicio y fecha_fin para periodo personalizado")
     return HistorialService(db).listar_entradas(periodo, anio, mes, fecha_inicio, fecha_fin)
 
-
-
-#@pagos_router.get('/pagos/entradas', tags=["Pagos"], response_model=List[EntradaPagoOut])
-#def listado_entradas(
-#    mes: Optional[int] = Query(None, ge=1, le=12),
-#    anio: Optional[int] = Query(None, ge=2000),
-#    desde: Optional[date] = None,
-#    hasta: Optional[date] = None,
-#    db: Session = Depends(get_database_session)
-#):
-#    return PagosService(db).listar_entradas(mes, anio, desde, hasta)

@@ -1,4 +1,4 @@
-from models.pagos import Pagos as PagoModel
+from models.pagos import Pagos as PagoModel, PagoItem
 from models.servicios import ServiciosCliente as ServiciosClienteModel
 from sqlalchemy.orm import Session
 from datetime import date
@@ -23,7 +23,7 @@ class PagosService:
             raise Exception("Servicio del cliente no encontrado")
         
         # Obtener pagos previos
-        pagos_previos = self.db.query(PagoModel).filter_by(servicio_cliente_id=servicio_cliente_id).all()
+        pagos_previos = self.db.query(PagoModel).filter_by(servicio_cliente_id = servicio_cliente_id).all()
         total_pagado = sum(pago.monto for pago in pagos_previos) # incluye el nuevo pago
         #total_pagado = sum(p.monto for p in pagos_previos)
 
@@ -63,9 +63,6 @@ class PagosService:
         cliente = servicio_cliente.cliente
         servicio = servicio_cliente.servicio
 
-        medio_contacto = cliente.metodo_aviso  # 'email' o 'whatsapp'
-        contacto = cliente.correo if medio_contacto == 'email' else cliente.telefono
-
         mensaje = f"""
     ✅ *Confirmación de Pago Recibido*
 
@@ -78,11 +75,12 @@ class PagosService:
 
     ¡Gracias por tu pago!
     """
+        medio_contacto = cliente.metodo_aviso
 
-        if medio_contacto == "email":
-            self.enviar_email(destinatario=contacto, asunto="Confirmación de Pago", cuerpo=mensaje)
-        elif medio_contacto == "whatsapp":
-            self.enviar_whatsapp(numero=contacto, mensaje=mensaje)
+        if medio_contacto in ["email", "ambos"]:
+            self.enviar_email(destinatario=cliente.correo, asunto="Confirmación de Pago", cuerpo=mensaje)
+        if medio_contacto in ["whatsapp", "ambos"]:
+            self.enviar_whatsapp(numero=cliente.whatsapp, mensaje=mensaje)
 
     def enviar_email(self, destinatario: str, asunto: str, cuerpo: str):
         print(f"[EMAIL] Enviando a {destinatario}:\nAsunto: {asunto}\n{cuerpo}")
@@ -143,3 +141,10 @@ class PagosService:
             })
 
         return resumenes
+    
+    def get_items_mes(self, servicio_cliente_id: int):
+        return (
+            self.db.query(PagoItem)
+            .filter(PagoItem.servicio_cliente_id == servicio_cliente_id)
+            .all()
+        )

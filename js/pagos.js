@@ -50,18 +50,65 @@ document.addEventListener("DOMContentLoaded", async () => {
   cargarResumenPagos();
 
   // Delegación de eventos
-  tablaPagos.addEventListener("click", async (e) => {
-    if (e.target.classList.contains("ver-items")) {
-      const id = e.target.dataset.id;
-      servicioClienteSeleccionado = id;
-      // Traer items del mes (simulado aquí)
-      itemsList.innerHTML = "<li>Item 1</li><li>Item 2</li>"; // reemplazar con fetch si hay endpoint
-      popupItems.style.display = "block";
-    } else if (e.target.classList.contains("registrar-pago")) {
-      servicioClienteSeleccionado = e.target.dataset.id;
-      popupPago.style.display = "block";
+tablaPagos.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("ver-items")) {
+    const id = e.target.dataset.id;
+    servicioClienteSeleccionado = id;
+
+    try {
+      const res = await fetch(`http://localhost:8000/pagos/items/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      let items = [];
+      if (!res.ok) {
+        // Si la petición falla
+        itemsList.innerHTML = "<li>No se pudieron obtener los ítems.</li>";
+      } else {
+        // Si la petición fue ok, obtenemos los datos
+        items = await res.json();
+
+        if (items.length === 0) {
+          // Si el array está vacío
+          itemsList.innerHTML = "<li>No hay ítems generados este mes.</li>";
+        } else {
+          // Si hay ítems
+          itemsList.innerHTML = items
+            .map(item => `<li>${item.descripcion} - $${item.monto.toLocaleString('es-AR')}</li>`)
+            .join("");
+        }
+      }
+    } catch (err) {
+      console.error("Error al obtener ítems:", err);
+      itemsList.innerHTML = "<li>Error al cargar los ítems del mes.</li>";
     }
-  });
+
+    popupItems.style.display = "block";
+
+  } else if (e.target.classList.contains("registrar-pago")) {
+    servicioClienteSeleccionado = e.target.dataset.id;
+    popupPago.style.display = "block"; // solo aquí se abre
+  }
+});
+
+
+      //if (!res.ok) {
+        //itemsList.innerHTML = "<li>No se encontraron ítems para este mes</li>";
+      //} else {
+        //const items = await res.json();
+        //itemsList.innerHTML = items
+          //.map(item => `<li>${item.descripcion} - $${item.monto.toLocaleString('es-AR')}</li>`)
+          //.join("");
+      //}
+
+      // Traer items del mes (simulado aquí)
+      //itemsList.innerHTML = "<li>Item 1</li><li>Item 2</li>"; // reemplazar con fetch si hay endpoint
+      //popupItems.style.display = "block";
+    //} else if (e.target.classList.contains("registrar-pago")) {
+      //servicioClienteSeleccionado = e.target.dataset.id;
+      //popupPago.style.display = "block";
+    //}
+  //});
 
   // Cerrar popups
   document.querySelectorAll(".close-btn").forEach(btn => {
@@ -105,4 +152,45 @@ document.addEventListener("DOMContentLoaded", async () => {
       alert("Error: " + err.message);
     }
   });
+
+
+  // BOTONES DE RECORDATORIOS
+  const btnRecordatorio10 = document.getElementById("btnRecordatorio");
+  const btnMora20 = document.getElementById("btnMora");
+  const btnCorte28 = document.getElementById("btnCorte");
+
+  async function enviarRecordatorios(url, mensajeConfirmacion) {
+    if (!confirm("¿Estás seguro de enviar los recordatorios?")) return;
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+      const data = await res.json();
+      alert(mensajeConfirmacion + "\n\n" + data.message);
+    } catch (err) {
+      alert("Error al enviar recordatorios: " + err.message);
+    }
+  }
+
+  if (btnRecordatorio10) {
+    btnRecordatorio10.addEventListener("click", () => 
+      enviarRecordatorios("http://localhost:8000/recordatorios/generar-dia-10", "Recordatorios de día 10 enviados correctamente.")
+    );
+  }
+
+  if (btnMora20) {
+    btnMora20.addEventListener("click", () => 
+      enviarRecordatorios("http://localhost:8000/recordatorios/generar-mora", "Alertas de mora (día 20) enviadas correctamente.")
+    );
+  }
+
+  if (btnCorte28) {
+    btnCorte28.addEventListener("click", () => 
+      enviarRecordatorios("http://localhost:8000/recordatorios/generar-corte", "Avisos de corte (día 28) enviados correctamente.")
+    );
+  }
 });

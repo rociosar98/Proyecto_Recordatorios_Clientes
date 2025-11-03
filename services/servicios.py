@@ -16,10 +16,6 @@ class ServiciosService():
         result = self.db.query(ServiciosModel).filter(ServiciosModel.activo == True).all()
         return result
 
-    #def get_servicios(self):
-    #    result = self.db.query(ServiciosModel).all()
-    #    return result.all()
-
     def get_servicio_id(self, id):
         result = self.db.query(ServiciosModel).filter(ServiciosModel.id == id).first()
         return result
@@ -112,9 +108,6 @@ class ServiciosService():
         self.db.commit()
         return
     
-    #def get_servicios_clientes(self):
-    #    result = self.db.query(ServiciosClienteModel).filter(ServiciosClienteModel.activo == True).all()
-    #    return result
     
     def get_servicios_asignados(self):
         servicios = self.db.query(
@@ -147,7 +140,6 @@ class ServiciosService():
         return resultado
 
     
-
     def get_servicios_por_cliente(self, cliente_id: int):
         hoy = date.today()
 
@@ -198,9 +190,4 @@ class ServiciosService():
 
         return servicios
 
-        #return self.db.query(ServiciosClienteModel).filter(
-        #    ServiciosClienteModel.fecha_vencimiento != None,
-        #    ServiciosClienteModel.fecha_vencimiento <= limite,
-        #    ServiciosClienteModel.activo == True
-        #).all()
     
