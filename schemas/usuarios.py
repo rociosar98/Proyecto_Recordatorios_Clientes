@@ -5,6 +5,7 @@ from core.enums import PermisoUsuario
 class User(BaseModel): # clase para login
     email: str
     password: str
+
 class UsuarioBase(BaseModel): #clase con los campos comunes de usuario
     nombre: str
     apellido: str
@@ -18,7 +19,7 @@ class UsuarioBase(BaseModel): #clase con los campos comunes de usuario
 class Usuarios(UsuarioBase):
     password: str
 
-class UsuarioPublico(BaseModel): # este modelo se usa en respuestas de endpoints para mostrar información del usuario sin incluir la contraseña.
+class UsuarioPublico(BaseModel): # modelo para respuestas de endpoints para mostrar información del usuario sin incluir la contraseña.
     id: int
     nombre: str
     apellido: str

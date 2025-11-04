@@ -1,19 +1,17 @@
 from models.pagos import Pagos as PagoModel, PagoItem
 from models.servicios import ServiciosCliente as ServiciosClienteModel
-from sqlalchemy.orm import Session
-from datetime import date
+from sqlalchemy.orm import Session, joinedload
+from datetime import date, datetime
 from typing import List, Optional
-from sqlalchemy.orm import joinedload
 from core.enums import EstadoPago
+from sqlalchemy import func
 
 
 class PagosService:
 
     def __init__(self, db) -> None:
         self.db = db
-
-    #def __init__(self, db: Session):
-    #    self.db = db
+        
 
     def registrar_pago(self, servicio_cliente_id: int, monto: float, fecha_facturacion: date,
     fecha_pago: Optional[date] = None, observaciones: Optional[str] = None):
@@ -143,8 +141,17 @@ class PagosService:
         return resumenes
     
     def get_items_mes(self, servicio_cliente_id: int):
+        hoy = date.today()
+        mes_actual = hoy.month
+        anio_actual = hoy.year
+
         return (
             self.db.query(PagoItem)
-            .filter(PagoItem.servicio_cliente_id == servicio_cliente_id)
+            .filter(
+                PagoItem.servicio_cliente_id == servicio_cliente_id,
+                PagoItem.fecha_generacion != None,  # si tenés este campo
+                func.extract('month', PagoItem.fecha_generacion) == mes_actual,
+                func.extract('year', PagoItem.fecha_generacion) == anio_actual,
+            )
             .all()
         )

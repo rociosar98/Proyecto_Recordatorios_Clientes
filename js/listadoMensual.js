@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnEnviarResúmenes = document.getElementById("btnEnviarResúmenes");
   const mensajeVacio = document.getElementById("mensajeVacio");
 
-  let datosListado = []; // 🔹 Guardamos todos los registros cargados
+  let datosListado = []; // Guardamos todos los registros cargados
 
   // Carga inicial del listado completo
   cargarListado();
@@ -54,9 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const filtrado = datosListado.filter(pago => {
       const condicionIVA = (pago.cliente?.condicion_iva || "").trim().toLowerCase();
       const coincideIVA = ivaSeleccionado ? condicionIVA === ivaSeleccionado : true;
-      //const coincideIVA = ivaSeleccionado
-        //? pago.cliente?.condicion_iva === ivaSeleccionado
-        //: true;
 
       const nombreResponsable = `${pago.cliente?.responsable?.nombre || ""} ${pago.cliente?.responsable?.apellido || ""}`.toLowerCase();
       const coincideResponsable = textoResponsable

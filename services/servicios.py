@@ -62,6 +62,7 @@ class ServiciosService():
        self.db.commit()
        return
     
+    
     def asignar_servicio_cliente(self, data: AsignarServicioCliente):
         servicio = self.db.query(ServiciosModel).filter(ServiciosModel.id == data.servicio_id).first()
         if not servicio:

@@ -5,7 +5,7 @@ from services.resumenes import ResumenesService
 
 resumen_router = APIRouter(prefix="/resumenes", tags=["Resumenes"])
 
-@resumen_router.post("/enviar")
+@resumen_router.post("/enviar", status_code=200)
 def enviar_resumenes(db: Session = Depends(get_database_session)):
     service = ResumenesService(db)
     enviados = service.enviar_resumenes()

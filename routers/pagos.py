@@ -8,7 +8,7 @@ from typing import List
 
 pagos_router = APIRouter()
 
-@pagos_router.post('/pagos/registrar', tags=['Pagos'], response_model=dict)
+@pagos_router.post('/pagos/registrar', tags=['Pagos'], response_model=dict, status_code=200)
 def registrar_pago(data: PagoIn, db: Session = Depends(get_database_session)):
     try:
         pago = PagosService(db).registrar_pago(
@@ -23,15 +23,16 @@ def registrar_pago(data: PagoIn, db: Session = Depends(get_database_session)):
         raise HTTPException(status_code=400, detail=str(e))
     
     
-@pagos_router.get('/pagos', tags=['Pagos'], response_model=List[PagoOut])
+@pagos_router.get('/pagos', tags=['Pagos'], response_model=List[PagoOut], status_code=200)
 def listar_pagos(db: Session = Depends(get_database_session)):
     return PagosService(db).listar_pagos()
 
 
-@pagos_router.get('/pagos/resumen',tags=['Pagos'], response_model=List[ResumenPagoOut])
+@pagos_router.get('/pagos/resumen',tags=['Pagos'], response_model=List[ResumenPagoOut], status_code=200)
 def get_resumen_pagos(db: Session = Depends(get_database_session)):
     resumenes = PagosService(db).obtener_resumen_pagos()
     return resumenes
+
 
 @pagos_router.get("/items/{servicio_cliente_id}", tags=['Pagos'], response_model=List[PagoItem], status_code=200)
 def obtener_items(servicio_cliente_id: int, db: Session = Depends(get_database_session)):

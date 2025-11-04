@@ -11,9 +11,7 @@ class ResumenesService:
 
     def __init__(self, db) -> None:
         self.db = db
-
-    #def __init__(self, db: Session):
-    #    self.db = db
+        
 
     def enviar_resumenes(self):
         clientes = self.db.query(ClientesModel).options(

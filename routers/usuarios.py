@@ -71,7 +71,7 @@ def get_usuario_id(id: int = Path(ge=1, le=2000), db=Depends(get_database_sessio
 
 
 @usuarios_router.post('/usuarios', tags=['Usuarios'], response_model=dict, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_required)])
-def create_usuarios(usuario: Usuarios,db: Session = Depends(get_database_session)) -> dict:
+def create_usuarios(usuario: Usuarios, db: Session = Depends(get_database_session)) -> dict:
      # validación de token y usuario actual
     usuario.password = get_password_hash(usuario.password)
     UsuariosService(db).create_usuarios(usuario)

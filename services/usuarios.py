@@ -37,7 +37,6 @@ class UsuariosService():
         self.db.commit()
         return
     
-
     def delete_usuarios(self, id: int):
        usuario = self.db.query(UsuariosModel).filter(UsuariosModel.id == id).first()
        usuario.activo = False

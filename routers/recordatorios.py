@@ -24,13 +24,13 @@ def generar_iniciales(db: Session = Depends(get_database_session)) -> dict:
     )
 
 
-@recordatorios_router.get('/recordatorios', tags=['Recordatorios'], response_model=List[RecordatorioOut])
+@recordatorios_router.get('/recordatorios', tags=['Recordatorios'], response_model=List[RecordatorioOut], status_code=200)
 def get_recordatorios(db: Session = Depends(get_database_session)):
     result = RecordatoriosService(db).get_recordatorios()
     return result
 
 
-@recordatorios_router.put('/recordatorios/{id}/marcar-enviado', tags=['Recordatorios'], response_model=dict)
+@recordatorios_router.put('/recordatorios/{id}/marcar-enviado', tags=['Recordatorios'], response_model=dict, status_code=200)
 def marcar_como_enviado(id: int, db: Session = Depends(get_database_session)):
     actualizado = RecordatoriosService(db).marcar_como_enviado(id)
     if not actualizado:
@@ -38,7 +38,7 @@ def marcar_como_enviado(id: int, db: Session = Depends(get_database_session)):
     return {"message": "Recordatorio marcado como enviado"}
 
 
-@recordatorios_router.delete('/recordatorios/{id}', tags=['Recordatorios'], response_model=dict)
+@recordatorios_router.delete('/recordatorios/{id}', tags=['Recordatorios'], response_model=dict, status_code=200)
 def eliminar_recordatorio(id: int, db: Session = Depends(get_database_session)):
     eliminado = RecordatoriosService(db).delete_recordatorio(id)
     if not eliminado:
@@ -46,7 +46,7 @@ def eliminar_recordatorio(id: int, db: Session = Depends(get_database_session)):
     return {"message": "Recordatorio eliminado correctamente"}
 
 
-@recordatorios_router.post('/recordatorios/generar-dia-10', tags=['Recordatorios'], response_model=dict)
+@recordatorios_router.post('/recordatorios/generar-dia-10', tags=['Recordatorios'], response_model=dict, status_code=200)
 def generar_recordatorios_dia_10(db: Session = Depends(get_database_session)) -> dict:
     result = RecordatoriosService(db).generar_recordatorios_dia_10()
     enviados = RecordatoriosService(db).enviar_recordatorios_no_enviados()

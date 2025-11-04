@@ -15,9 +15,6 @@ class HistorialService:
     def __init__(self, db) -> None:
         self.db = db
 
-    #def __init__(self, db: Session):
-    #    self.db = db
-
 
     def obtener_historial(self, cliente_id: Optional[int] = None):
         query = (
@@ -64,7 +61,7 @@ class HistorialService:
                 "cliente": {
                     "id": cliente.id,
                     "nombre": cliente.nombre,
-                    "apellido": cliente.apellido,  # 👈 agregado
+                    "apellido": cliente.apellido,
                     "empresa": cliente.empresa,
                     "condicion_iva": cliente.condicion_iva,
                 },
@@ -77,59 +74,6 @@ class HistorialService:
 
         return resultado
 
-
-
-        #pagos = (
-        #    self.db.query(PagosModel)
-        #    .join(ServiciosClienteModel)
-        #    .filter(ServiciosClienteModel.cliente_id == cliente_id)
-        #    .order_by(PagosModel.fecha_facturacion.desc())
-            #.filter(PagosModel.servicio_cliente_id == servicio_cliente_id)
-        #    .all()
-        #)
-        #return pagos
-    
-
-    #def obtener_historial(self, cliente_id: int):
-    #    consumos = self.db.query(ConsumoModel).filter_by(cliente_id=cliente_id).all()
-    #    pagos = (
-    #        self.db.query(PagosModel)
-    #        .join(ServiciosClienteModel)
-    #        .filter(ServiciosClienteModel.cliente_id == cliente_id)
-    #        .all()
-    #    )
-        
-    #    historial = {
-    #        "consumos": [
-    #            {
-    #                "fecha_facturacion": c.fecha_facturacion,
-    #                "detalle": c.detalle,
-    #                "monto": c.monto,
-    #            }
-    #            for c in consumos
-    #        ],
-    #        "pagos": [
-    #            {
-    #                "fecha_pago": p.fecha,
-    #                "monto": p.monto,
-    #                "servicio": p.servicio_cliente.servicio.nombre,
-    #            }
-    #            for p in pagos
-    #        ],
-    #    }
-    #    return historial
-
-    #def listar_por_filtros(self, fecha: date, condicion_iva: Optional[str], responsable_cuenta: Optional[str]):
-    #    query = self.db.query(ServiciosClienteModel).filter(
-    #        ServiciosClienteModel.fecha_facturacion == fecha
-    #    )
-    #    if condicion_iva:
-    #        query = query.join(ClientesModel).filter(ClientesModel.condicion_iva == condicion_iva)
-    #    if responsable_cuenta:
-    #        query = query.filter(ServiciosClienteModel.responsable_cuenta == responsable_cuenta)
-    #    resultados = query.all()
-    #    return [s.to_dict() for s in resultados]  # Asumiendo que tienes método to_dict()
-    
 
     def listar_por_filtros(self, condicion_iva: Optional[str], responsable_nombre: Optional[str]):
         query = (
@@ -183,53 +127,6 @@ class HistorialService:
             })
 
         return resultados
-
-
-
-    # def listar_entradas(self, fecha_inicio: Optional[date], fecha_fin: Optional[date], periodo: Optional[str]):
-    #     query = self.db.query(PagosModel).options(
-    #         joinedload(PagosModel.servicio_cliente)
-    #         .joinedload(ServiciosClienteModel.cliente),
-    #         joinedload(PagosModel.servicio_cliente)
-    #         .joinedload(ServiciosClienteModel.servicio)
-    #     )
-
-    #     # Filtros por período
-    #     if periodo == "mensual":
-    #         hoy = date.today()
-    #         inicio_mes = hoy.replace(day=1)
-    #         query = query.filter(PagosModel.fecha_facturacion >= inicio_mes)
-    #     elif periodo == "anual":
-    #         hoy = date.today()
-    #         inicio_anio = hoy.replace(month=1, day=1)
-    #         query = query.filter(PagosModel.fecha_facturacion >= inicio_anio)
-    #     else:
-    #         if fecha_inicio:
-    #             query = query.filter(PagosModel.fecha_facturacion >= fecha_inicio)
-    #         if fecha_fin:
-    #             query = query.filter(PagosModel.fecha_facturacion <= fecha_fin)
-
-    #     pagos = query.all()
-
-    #     # Formatear respuesta enriquecida
-    #     resultado = []
-    #     for pago in pagos:
-    #         cliente = pago.servicio_cliente.cliente
-    #         servicio = pago.servicio_cliente.servicio
-
-    #         resultado.append({
-    #             "cliente": f"{cliente.nombre} {cliente.apellido}",
-    #             "empresa": cliente.empresa,
-    #             "servicio": servicio.nombre,
-    #             "monto": pago.monto,
-    #             "fecha_facturacion": pago.fecha_facturacion,
-    #             "fecha_pago": pago.fecha_pago,
-    #             "estado": pago.estado.value,
-    #             "observaciones": pago.observaciones
-    #         })
-
-    #     return resultado
-
     
 
     def listar_entradas(self, periodo: Optional[str], anio: Optional[int], mes: Optional[int], fecha_inicio: Optional[date], fecha_fin: Optional[date]):
@@ -255,22 +152,3 @@ class HistorialService:
         return query.all()
 
     
-
-    #def listar_entradas(self, fecha_inicio: Optional[date], fecha_fin: Optional[date], periodo: Optional[str]):
-    #    query = self.db.query(PagosModel)
-
-    #    if periodo == "mensual":
-    #        hoy = date.today()
-    #        inicio_mes = hoy.replace(day=1)
-    #        query = query.filter(PagosModel.fecha >= inicio_mes)
-    #    elif periodo == "anual":
-    #        hoy = date.today()
-    #        inicio_anio = hoy.replace(month=1, day=1)
-    #        query = query.filter(PagosModel.fecha >= inicio_anio)
-    #    else:
-    #        if fecha_inicio:
-    #            query = query.filter(PagosModel.fecha >= fecha_inicio)
-    #        if fecha_fin:
-    #            query = query.filter(PagosModel.fecha <= fecha_fin)
-
-    #    return query.all()

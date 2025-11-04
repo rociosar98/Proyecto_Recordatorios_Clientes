@@ -32,25 +32,12 @@ def listado_mensual(
     responsable_nombre: Optional[str] = None,
     db: Session = Depends(get_database_session)
 ):
-    #query = db.query(ServiciosClienteModel).join(ClientesModel)
-
-    #if condicion_iva:
-    #    query = query.filter(ClientesModel.condicion_iva == condicion_iva)
-    
-    #if responsable_nombre:
-    # Filtra por nombre o apellido del responsable
-    #    query = query.join(ClientesModel.responsable).filter(
-    #        or_(
-    #            UsuariosModel.nombre.ilike(f"%{responsable_nombre}%"),
-    #            UsuariosModel.apellido.ilike(f"%{responsable_nombre}%")
-    #        )
-    #    )
-
     return HistorialService(db).listar_por_filtros(condicion_iva, responsable_nombre)
+
 
 @historial_router.get('/listado-entradas', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def listado_entradas(
-    periodo: Optional[str] = None,  # 'mensual', 'anual', None
+    periodo: Optional[str] = None,  # 'mensual', 'anual'
     anio: Optional[int] = None,
     mes: Optional[int] = None,
     fecha_inicio: Optional[date] = None,
