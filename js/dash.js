@@ -13,8 +13,10 @@ buttons.forEach(btn => {
 
     // Mostrar sección correspondiente
     let sectionId;
-    if (btn.id === "configuracion") {
+    if (btn.id === "btnConfiguracion") {
       sectionId = "section-configuracion";
+    } else if (btn.id === "btnDescargarDatos") {
+      sectionId = "section-descargarDatos";
     } else {
       sectionId = "section-" + btn.id.replace("btn", "").toLowerCase();
     }
@@ -23,7 +25,7 @@ buttons.forEach(btn => {
     if (target) {
       target.classList.add("visible");
     } else {
-      // Si no hay sección interna, redirigir a otra página (opcional)
+      // Si no hay sección interna, redirigir a otra página
       // Redirecciones a otras páginas
       if (btn.id == "btnUsuarios") {
         window.location.href = "crudUsuarios.html"
@@ -134,3 +136,53 @@ configForm.addEventListener("submit", async (e) => {
   }
 });
 
+
+// --- NUEVA SECCIÓN: EXPORTAR DATOS ---
+const exportForm = document.getElementById("exportForm");
+
+exportForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const desde = document.getElementById("desde").value;
+  const hasta = document.getElementById("hasta").value;
+  const formato = document.getElementById("formato").value;
+
+
+  const token = sessionStorage.getItem("token");
+  if (!token) {
+    alert("⚠️ No hay token de sesión. Iniciá sesión como admin nuevamente.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  try {
+    const url = `http://localhost:8000/exportar?desde=${desde}&hasta=${hasta}&formato=${formato}`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Error al exportar datos (status ${response.status}): ${errText}`);
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("Content-Disposition");
+    let filename = "pagos_export";
+
+    if (contentDisposition && contentDisposition.includes("filename=")) {
+      filename = contentDisposition.split("filename=")[1].replace(/"/g, "");
+    }
+
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  } catch (error) {
+    alert("❌ Error al descargar datos: " + error.message);
+    console.error(error);
+  }
+});

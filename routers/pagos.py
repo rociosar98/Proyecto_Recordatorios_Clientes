@@ -34,10 +34,10 @@ def get_resumen_pagos(db: Session = Depends(get_database_session)):
     return resumenes
 
 
-@pagos_router.get("/items/{servicio_cliente_id}", tags=['Pagos'], response_model=List[PagoItem], status_code=200)
-def obtener_items(servicio_cliente_id: int, db: Session = Depends(get_database_session)):
-    service = PagosService(db)
-    items = service.get_items_mes(servicio_cliente_id)
-    if not items:
-        raise HTTPException(status_code=404, detail="No se encontraron items para este mes")
-    return items
+# @pagos_router.get("/items/{servicio_cliente_id}", tags=['Pagos'], response_model=List[PagoItem], status_code=200)
+# def obtener_items(servicio_cliente_id: int, db: Session = Depends(get_database_session)):
+#     service = PagosService(db)
+#     items = service.get_items_mes(servicio_cliente_id)
+#     if not items:
+#         raise HTTPException(status_code=404, detail="No se encontraron items para este mes")
+#     return items

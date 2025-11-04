@@ -16,10 +16,10 @@
       <button id="btnServicios">Servicios</button>
       <button id="btnAsignarServicio">Asignar Servicio</button>
       <button id="btnFacturacion">Facturación</button>
-      <button id="deudores">Deudores</button>
       <button id="btnHistorial">Historial</button>
       <button id="btnListado">Listado Mensual</button>
-      <button id="configuracion">Configuración</button>
+      <button id="btnDescargarDatos">Descargar Datos</button>
+      <button id="btnConfiguracion">Configuración Empresa</button>
       <button id="logout">Salir</button>
     </aside>
 
@@ -28,6 +28,26 @@
         <h1>Bienvenido al Sistema</h1>
         <p>Selecciona una opción del menú para comenzar.</p>
       </section>
+
+      <section id="section-descargarDatos" class="section">
+        <h1>Exportar Datos</h1>
+        <form id="exportForm">
+          <label for="desde">Desde:</label>
+          <input type="date" id="desde" name="desde" required /><br /><br />
+
+          <label for="hasta">Hasta:</label>
+          <input type="date" id="hasta" name="hasta" required /><br /><br />
+
+          <label for="formato">Formato:</label>
+          <select id="formato" name="formato">
+            <option value="csv">CSV</option>
+            <option value="excel">Excel</option>
+          </select><br /><br />
+
+          <button type="submit">Descargar</button>
+        </form>
+      </section>
+
 
       <section id="section-configuracion" class="section">
         <h1>Configuración de la Empresa</h1>

@@ -140,18 +140,18 @@ class PagosService:
 
         return resumenes
     
-    def get_items_mes(self, servicio_cliente_id: int):
-        hoy = date.today()
-        mes_actual = hoy.month
-        anio_actual = hoy.year
+    # def get_items_mes(self, servicio_cliente_id: int):
+    #     hoy = date.today()
+    #     mes_actual = hoy.month
+    #     anio_actual = hoy.year
 
-        return (
-            self.db.query(PagoItem)
-            .filter(
-                PagoItem.servicio_cliente_id == servicio_cliente_id,
-                PagoItem.fecha_generacion != None,  # si tenés este campo
-                func.extract('month', PagoItem.fecha_generacion) == mes_actual,
-                func.extract('year', PagoItem.fecha_generacion) == anio_actual,
-            )
-            .all()
-        )
+    #     return (
+    #         self.db.query(PagoItem)
+    #         .filter(
+    #             PagoItem.servicio_cliente_id == servicio_cliente_id,
+    #             PagoItem.fecha_generacion != None,  # si tenés este campo
+    #             func.extract('month', PagoItem.fecha_generacion) == mes_actual,
+    #             func.extract('year', PagoItem.fecha_generacion) == anio_actual,
+    #         )
+    #         .all()
+    #     )

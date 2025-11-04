@@ -26,14 +26,14 @@ class Pagos(Base):
         return self.servicio_cliente.servicio if self.servicio_cliente else None
 
 
-class PagoItem(Base):
-    __tablename__ = "pagos_items"
+# class PagoItem(Base):
+#     __tablename__ = "pagos_items"
 
-    id = Column(Integer, primary_key=True, index=True)
-    servicio_cliente_id = Column(Integer, ForeignKey("servicios_clientes.id"), nullable=False)
-    descripcion = Column(String(200), nullable=False)
-    monto = Column(Float, nullable=False)
-    fecha_generacion = Column(Date, nullable=True)  # opcional, si querés saber de qué mes es
+#     id = Column(Integer, primary_key=True, index=True)
+#     servicio_cliente_id = Column(Integer, ForeignKey("servicios_clientes.id"), nullable=False)
+#     descripcion = Column(String(200), nullable=False)
+#     monto = Column(Float, nullable=False)
+#     fecha_generacion = Column(Date, nullable=True)  # opcional, si querés saber de qué mes es
 
-    # Relación con el servicio-cliente
-    servicio_cliente = relationship("ServiciosCliente", back_populates="items")
+#     # Relación con el servicio-cliente
+#     servicio_cliente = relationship("ServiciosCliente", back_populates="items")
