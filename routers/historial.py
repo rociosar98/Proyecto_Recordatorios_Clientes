@@ -1,17 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime
 from database import get_database_session 
 from utils.dependencies import get_current_user, admin_required
 from services.historial import HistorialService
-from sqlalchemy import or_
-
 from schemas.pagos import PagoOut, HistorialPagoOut
-from models.pagos import Pagos as PagosModel
-from models.servicios import ServiciosCliente as ServiciosClienteModel
-from models.clientes import Clientes as ClientesModel
-from models.usuarios import Usuarios as UsuariosModel
+from models.listado_mensual import ListadoMensual as ListadoMensualModel
 
 
 historial_router = APIRouter()
@@ -25,14 +20,40 @@ def historial_pagos(cliente_id: Optional[int] = None, db: Session = Depends(get_
     return pagos
 
 
-@historial_router.get('/listado-mensual', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
-def listado_mensual(
-    #fecha: date,
-    condicion_iva: Optional[str] = None,
-    responsable_nombre: Optional[str] = None,
-    db: Session = Depends(get_database_session)
-):
-    return HistorialService(db).listar_por_filtros(condicion_iva, responsable_nombre)
+# @historial_router.get("/listado-mensual")
+# def listado_mensual(year: Optional[int] = None, month: Optional[int] = None, db: Session = Depends(get_database_session)):
+#     listado = db.query(ListadoMensualModel).order_by(ListadoMensualModel.fecha.desc()).first()
+#     if not listado:
+#         return []
+
+#     # Filtrar por mes y año si se proporcionan (opcional)
+#     if year and month:
+#         filtrado = [
+#             item for item in listado.contenido
+#             if datetime.fromisoformat(item["fecha_facturacion"]).year == year
+#             and datetime.fromisoformat(item["fecha_facturacion"]).month == month
+#         ]
+#         return filtrado
+
+#     return listado.contenido
+
+
+@historial_router.get("/listado-mensual")
+def listado_mensual(db: Session = Depends(get_database_session)):
+    listado = db.query(ListadoMensualModel).order_by(ListadoMensualModel.fecha.desc()).first()
+    #return listado.contenido if listado else []
+    return listado.contenido if listado and listado.contenido else []
+
+
+
+# @historial_router.get('/listado-mensual', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
+# def listado_mensual(
+#     #fecha: date,
+#     condicion_iva: Optional[str] = None,
+#     responsable_nombre: Optional[str] = None,
+#     db: Session = Depends(get_database_session)
+# ):
+#     return HistorialService(db).listar_por_filtros(condicion_iva, responsable_nombre)
 
 
 @historial_router.get('/listado-entradas', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])

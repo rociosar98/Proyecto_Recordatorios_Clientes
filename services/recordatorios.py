@@ -1,7 +1,7 @@
 from datetime import date
 from sqlalchemy.orm import Session
 from models.recordatorios import Recordatorios
-from models.servicios import ServiciosCliente
+from models.servicios import ServiciosCliente as ServiciosClienteModel
 from schemas.recordatorios import RecordatorioOut
 from models.pagos import Pagos as PagosModel
 
@@ -13,10 +13,12 @@ class RecordatoriosService():
 
     def generar_recordatorios_dia_1(self):
         hoy = date.today()
-        #hoy = date(2025, 12, 2)  # para probar
+        # Para pruebas: descomentar la siguiente línea
+        # hoy = date(2025, 11, 1)
+
         nuevos_recordatorios = []
 
-        servicios_clientes = self.db.query(ServiciosCliente).filter(ServiciosCliente.activo == True).all()
+        servicios_clientes = self.db.query(ServiciosClienteModel).filter(ServiciosClienteModel.activo == True).all()
 
         for sc in servicios_clientes:
             cliente = sc.cliente
@@ -27,17 +29,34 @@ class RecordatoriosService():
             if sc.fecha_inicio > hoy or (sc.fecha_vencimiento and sc.fecha_vencimiento < hoy):
                 continue
 
-            # Evitar si ya se pagó totalmente
-            if self.servicio_esta_pagado(sc.id):
+            # Ignorar si el servicio no corresponde a este mes según recurrencia
+            if not self.servicio_corresponde_a_mes(sc, hoy):
                 continue
 
-            # Ya existe recordatorio para hoy
+            # Calcular total pagado y saldo a favor
+            pagos = self.db.query(PagosModel).filter_by(servicio_cliente_id=sc.id).all()
+            total_pagado = sum(p.monto for p in pagos)
+            monto_mes = sc.precio_congelado
+            saldo_a_favor = max(total_pagado - monto_mes, 0)
+            saldo_pendiente = max(monto_mes - total_pagado, 0)
+
+            # Determinar estado
+            if saldo_pendiente == 0:
+                estado = "pagado"
+                monto_a_mostrar = 0
+            elif saldo_pendiente < monto_mes:
+                estado = "parcial"
+                monto_a_mostrar = saldo_pendiente
+            else:
+                estado = "pendiente"
+                monto_a_mostrar = saldo_pendiente
+
+            # Evitar duplicados de recordatorio
             ya_existe = self.db.query(Recordatorios).filter_by(
                 servicio_cliente_id=sc.id,
                 fecha_recordatorio=hoy,
                 tipo_recordatorio="inicial"
             ).first()
-
             if ya_existe:
                 continue
 
@@ -63,15 +82,42 @@ class RecordatoriosService():
         return nuevos_recordatorios
     
 
-    def servicio_esta_pagado(self, servicio_cliente_id: int) -> bool:
-        pagos = self.db.query(PagosModel).filter_by(servicio_cliente_id=servicio_cliente_id).all()
-        total_pagado = sum(p.monto for p in pagos)
-
-        sc = self.db.query(ServiciosCliente).filter_by(id=servicio_cliente_id).first()
-        if not sc:
+    def servicio_corresponde_a_mes(self, sc: ServiciosClienteModel, hoy: date) -> bool:
+        if sc.fecha_inicio > hoy:
+            return False
+        if sc.fecha_vencimiento and sc.fecha_vencimiento < hoy:
             return False
 
-        return total_pagado >= sc.precio_congelado
+        meses_desde_inicio = (hoy.year - sc.fecha_inicio.year) * 12 + (hoy.month - sc.fecha_inicio.month)
+
+        recurrencia = sc.tipo_recurrencia.lower() if sc.tipo_recurrencia else "pago único"
+
+        if recurrencia == "mensual":
+            return True
+        elif recurrencia == "bimestral":
+            return meses_desde_inicio % 2 == 0
+        elif recurrencia == "trimestral":
+            return meses_desde_inicio % 3 == 0
+        elif recurrencia == "cuatrimestral":
+            return meses_desde_inicio % 4 == 0
+        elif recurrencia == "semestral":
+            return meses_desde_inicio % 6 == 0
+        elif recurrencia == "anual":
+            return hoy.month == sc.fecha_inicio.month
+        else:
+            return True  # pago único
+
+    
+
+    # def servicio_esta_pagado(self, servicio_cliente_id: int) -> bool:
+    #     pagos = self.db.query(PagosModel).filter_by(servicio_cliente_id=servicio_cliente_id).all()
+    #     total_pagado = sum(p.monto for p in pagos)
+
+    #     sc = self.db.query(ServiciosCliente).filter_by(id=servicio_cliente_id).first()
+    #     if not sc:
+    #         return False
+
+    #     return total_pagado >= sc.precio_congelado
 
 
        
@@ -102,7 +148,7 @@ class RecordatoriosService():
         #hoy = date(2025, 10, 10)
         nuevos_recordatorios = []
 
-        servicios_clientes = self.db.query(ServiciosCliente).filter(ServiciosCliente.activo == True).all()
+        servicios_clientes = self.db.query(ServiciosClienteModel).filter(ServiciosClienteModel.activo == True).all()
 
         for sc in servicios_clientes:
             cliente = sc.cliente
@@ -147,7 +193,7 @@ class RecordatoriosService():
         #hoy = date(2025, 11, 1)
         nuevos_recordatorios = []
 
-        servicios_clientes = self.db.query(ServiciosCliente).filter(ServiciosCliente.activo == True).all()
+        servicios_clientes = self.db.query(ServiciosClienteModel).filter(ServiciosClienteModel.activo == True).all()
 
         for sc in servicios_clientes:
             cliente = sc.cliente
@@ -191,7 +237,7 @@ class RecordatoriosService():
         hoy = date(2025, 10, 28)
         nuevos_recordatorios = []
 
-        servicios_clientes = self.db.query(ServiciosCliente).filter(ServiciosCliente.activo == True).all()
+        servicios_clientes = self.db.query(ServiciosClienteModel).filter(ServiciosClienteModel.activo == True).all()
 
         for sc in servicios_clientes:
             cliente = sc.cliente

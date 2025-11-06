@@ -76,28 +76,27 @@ document.addEventListener("DOMContentLoaded", () => {
       mensajeVacio.style.display = "none";
     }
 
-    data.forEach(pago => {
+    data.forEach(item => {
       const tr = document.createElement("tr");
 
       const estadoClase =
-        pago.estado === "pagado"
+        item.estado === "pagado"
           ? "estado-pagado"
-          : pago.estado === "parcial"
+          : item.estado === "parcial"
           ? "estado-parcial"
           : "estado-pendiente";
 
       tr.classList.add(estadoClase);
 
       tr.innerHTML = `
-        <td>${pago.cliente?.nombre || ""} ${pago.cliente?.apellido || ""}</td>
-        <td>${pago.cliente?.empresa || "-"}</td>
-        <td>${pago.cliente?.condicion_iva || "-"}</td>
-        <td>${pago.cliente?.responsable?.nombre || ""} ${pago.cliente?.responsable?.apellido || "-"}</td>
-        <td>${pago.servicio?.nombre || "-"}</td>
-        <td>${pago.fecha_facturacion || "-"}</td>
-        <td>${pago.fecha_pago || "-"}</td>
-        <td>$${pago.monto?.toLocaleString() || "-"}</td>
-        <td class="estado">${pago.estado}</td>
+        <td>${item.cliente?.nombre || ""} ${item.cliente?.apellido || ""}</td>
+        <td>${item.cliente?.empresa || "-"}</td>
+        <td>${item.cliente?.condicion_iva || "-"}</td>
+        <td>${item.cliente?.responsable?.nombre || ""} ${item.cliente?.responsable?.apellido || "-"}</td>
+        <td>${item.servicio?.nombre || "-"}</td>
+        <td>${item.fecha_facturacion || "-"}</td>
+        <td>$${item.monto?.toLocaleString() || "-"}</td>
+        <td class="estado">${item.estado || "-"}</td>
       `;
 
       tabla.appendChild(tr);

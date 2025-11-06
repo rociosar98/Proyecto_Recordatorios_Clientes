@@ -1,4 +1,4 @@
-from models.pagos import Pagos as PagoModel, PagoItem
+from models.pagos import Pagos as PagoModel
 from models.servicios import ServiciosCliente as ServiciosClienteModel
 from sqlalchemy.orm import Session, joinedload
 from datetime import date, datetime

@@ -69,6 +69,7 @@ class DashboardService:
         buffer.seek(0)
         return buffer, filename
 
+
     # Eliminar pagos en un rango de fechas
     def eliminar_pagos_por_rango(self, desde, hasta):
         pagos_query = self.db.query(Pagos).filter(

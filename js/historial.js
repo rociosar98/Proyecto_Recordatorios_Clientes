@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const filtroAnio = document.getElementById("filtroAnio");
   const fechaDesde = document.getElementById("fechaDesde");
   const fechaHasta = document.getElementById("fechaHasta");
-  //const filtroFecha = document.getElementById("filtroFecha"); // opcional, no usado aún
   // btnBuscar = document.getElementById("btnBuscar");
 
   let datosHistorial = []; // Guardamos todos los datos aquí
@@ -21,9 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const url = new URL("http://localhost:8000/historial");
       if (clienteId) url.searchParams.append("cliente_id", clienteId);
-      //if (clienteId) {
-        //url.searchParams.append("cliente_id", clienteId);
-      //}
 
       const res = await fetchConAuth(url.href);
       if (!res.ok) {
@@ -46,16 +42,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const anioSeleccionado = filtroAnio.value; // YYYY
     const desde = fechaDesde.value; // YYYY-MM-DD
     const hasta = fechaHasta.value; // YYYY-MM-DD
-    //const fechaSeleccionada = filtroFecha.value;
 
     const filtrado = datosHistorial.filter(pago => {
-      // filtrar por clientes (nombre + apellido)
+      // filtrar por clientes
       const nombreCliente = `${pago.cliente?.nombre || ""} ${pago.cliente?.apellido || ""}`.toLowerCase();
       const coincideCliente = clienteTexto ? nombreCliente.includes(clienteTexto) : true;
-
-      // filtrar por clientes
-      //const nombreCliente = (pago.cliente || "").toLowerCase();
-      //const coincideCliente = nombreCliente.includes(clienteTexto);
 
       // filtrar por estado
       const coincideEstado = estadoSeleccionado ? pago.estado === estadoSeleccionado : true;
@@ -77,52 +68,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         coincideFecha = anioPago === anioSeleccionado;
       }
 
-
-
-
-      //if (desde && hasta) {
-        //const fechaPagoObj = new Date(pago.fecha_facturacion);
-        //coincideFecha = fechaPagoObj >= new Date(desde) && fechaPagoObj <= new Date(hasta);
-      //} else if (mesSeleccionado) {
-        //const [anioMes, mesMes] = mesSeleccionado.split("-");
-        //const fechaPagoObj = new Date(pago.fecha_facturacion);
-        //coincideFecha =
-          //fechaPagoObj.getFullYear() === parseInt(anioMes) &&
-          //fechaPagoObj.getMonth() + 1 === parseInt(mesMes);
-      //} else if (anioSeleccionado) {
-        //const fechaPagoObj = new Date(pago.fecha_facturacion);
-        //coincideFecha = fechaPagoObj.getFullYear() === parseInt(anioSeleccionado);
-      //}
-
-      //if (pago.fecha_facturacion) {
-        //const fechaPago = new Date(pago.fecha_facturacion);
-
-        // Filtrar por mes
-        //if (mesSeleccionado) {
-          //const [anioMes, mesMes] = mesSeleccionado.split("-");
-          //coincideFecha = fechaPago.getFullYear() === parseInt(anioMes) &&
-                          //(fechaPago.getMonth() + 1) === parseInt(mesMes);
-        //}
-
-        // Filtrar por año
-        //if (anioSeleccionado) {
-          //coincideFecha = fechaPago.getFullYear() === parseInt(anioSeleccionado);
-        //}
-
-        // Filtrar por rango
-        //if (desde && hasta) {
-          //const fechaDesdeObj = new Date(desde);
-          //const fechaHastaObj = new Date(hasta);
-          //coincideFecha = fechaPago >= fechaDesdeObj && fechaPago <= fechaHastaObj;
-        //}
-      //}
-
-      //let coincideFecha = true;
-      //if (fechaSeleccionada && pago.fecha_facturacion) {
-        //const mesFacturacion = pago.fecha_facturacion.slice(0, 7); // "YYYY-MM"
-        //coincideFecha = mesFacturacion === fechaSeleccionada;
-      //}
-
       return coincideCliente && coincideEstado && coincideFecha;
     });
 
@@ -140,12 +85,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     data.forEach(pago => {
-      //const clienteNombre = pago.cliente || "-";
       const clienteNombre = `${pago.cliente?.nombre || ""} ${pago.cliente?.apellido || ""}`.trim() || "-";
       const clienteEmpresa = pago.cliente?.empresa || "-";
       const servicioNombre = pago.servicio || "-";
-      //const servicioNombre = pago.servicio?.nombre || "-";
-      //const monto = pago.monto || "-";
       const monto = pago.monto?.toLocaleString() || "-";
       const fechaFacturacion = pago.fecha_facturacion || "-";
       const fechaPago = pago.fecha_pago || "-";

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, Path, HTTPException, Query
+from fastapi import APIRouter, status, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 from typing import Optional, List
 from database import get_database_session

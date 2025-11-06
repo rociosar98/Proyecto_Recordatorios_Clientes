@@ -2,17 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse, JSONResponse
 from sqlalchemy.orm import Session
 from database import get_database_session
-from middlewares.jwt_bearer import JWTBearer
-from passlib.context import CryptContext
-from utils.jwt_manager import create_token
-from utils.dependencies import get_current_user, admin_required
+from utils.dependencies import admin_required
 from datetime import date
-import io
-import pandas as pd
 
-from pydantic import BaseModel, Field
-
-from models.pagos import Pagos, PagoItem
+from models.pagos import Pagos
 
 from models.datos_empresa import DatosEmpresa as DatosEmpresaModel
 from schemas.datos_empresa import DatosEmpresa

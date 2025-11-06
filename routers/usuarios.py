@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Path, Query, HTTPException, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
 from typing import Optional, List
 from database import get_database_session
 from models.usuarios import Usuarios as UsuarioModel

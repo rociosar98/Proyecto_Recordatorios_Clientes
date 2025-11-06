@@ -1,6 +1,5 @@
 from models.servicios import Servicios as ServiciosModel, ServiciosCliente as ServiciosClienteModel
 from schemas.servicios import Servicios, ServiciosCliente, AsignarServicioCliente
-from typing import Optional
 from fastapi.exceptions import HTTPException
 from datetime import date
 from dateutil.relativedelta import relativedelta

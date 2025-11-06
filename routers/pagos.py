@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_database_session
-from schemas.pagos import PagoIn, PagoOut, ResumenPagoOut, PagoItem
+from schemas.pagos import PagoIn, PagoOut, ResumenPagoOut
 from services.pagos import PagosService
 from typing import List
 

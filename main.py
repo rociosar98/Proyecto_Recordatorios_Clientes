@@ -13,6 +13,7 @@ from routers.resumenes import resumen_router
 from routers.historial import historial_router
 from routers.dashboard import dashboard_router
 from fastapi.staticfiles import StaticFiles
+from tasks.scheduler import start_scheduler
 
 app = FastAPI()
 app.title = "Recordatorios para clientes"
@@ -38,6 +39,12 @@ app.include_router(historial_router)
 app.include_router(dashboard_router)
 
 Base.metadata.create_all(bind=engine)
+
+start_scheduler()
+
+#@app.on_event("startup")
+#def startup_event():
+#    start_scheduler()
 
 # 1. Servimos todos los archivos estáticos del directorio frontend en la ruta "/" (raíz)
 # app.mount("/", StaticFiles(directory="frontend", html=True ), name="frontend")

@@ -2,9 +2,7 @@ import { fetchConAuth } from "./fetchAuth.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const tablaPagos = document.getElementById("tablaPagos");
-  const popupItems = document.getElementById("popupItems");
   const popupPago = document.getElementById("popupPago");
-  const itemsList = document.getElementById("itemsList");
   const formPago = document.getElementById("formPago");
   const pagoMonto = document.getElementById("pagoMonto");
   const pagoFecha = document.getElementById("pagoFecha");
@@ -26,9 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const tr = document.createElement("tr");
         tr.className = r.estado;
         tr.innerHTML = `
-          <td>${r.cliente_nombre} / ${r.empresa} 
-            <button class="ver-items" data-id="${r.servicio_cliente_id}">📄</button>
-          </td>
+          <td>${r.cliente_nombre} / ${r.empresa}</td>
           <td>${r.servicio}</td>
           <td>$${r.monto_total?.toLocaleString() || "-"}</td>
           
@@ -50,65 +46,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   cargarResumenPagos();
 
   // Delegación de eventos
-tablaPagos.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("ver-items")) {
-    const id = e.target.dataset.id;
-    servicioClienteSeleccionado = id;
-
-    try {
-      const res = await fetch(`http://localhost:8000/pagos/items/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      let items = [];
-      if (!res.ok) {
-        // Si la petición falla
-        itemsList.innerHTML = "<li>No se pudieron obtener los ítems.</li>";
-      } else {
-        // Si la petición fue ok, obtenemos los datos
-        items = await res.json();
-
-        if (items.length === 0) {
-          // Si el array está vacío
-          itemsList.innerHTML = "<li>No hay ítems generados este mes.</li>";
-        } else {
-          // Si hay ítems
-          itemsList.innerHTML = items
-            .map(item => `<li>${item.descripcion} - $${item.monto.toLocaleString('es-AR')}</li>`)
-            .join("");
-        }
-      }
-    } catch (err) {
-      console.error("Error al obtener ítems:", err);
-      itemsList.innerHTML = "<li>Error al cargar los ítems del mes.</li>";
+  tablaPagos.addEventListener("click", (e) => {
+    if (e.target.classList.contains("registrar-pago")) {
+      servicioClienteSeleccionado = e.target.dataset.id;
+      popupPago.style.display = "block";
     }
-
-    popupItems.style.display = "block";
-
-  } else if (e.target.classList.contains("registrar-pago")) {
-    servicioClienteSeleccionado = e.target.dataset.id;
-    popupPago.style.display = "block"; // solo aquí se abre
-  }
-});
-
-
-      //if (!res.ok) {
-        //itemsList.innerHTML = "<li>No se encontraron ítems para este mes</li>";
-      //} else {
-        //const items = await res.json();
-        //itemsList.innerHTML = items
-          //.map(item => `<li>${item.descripcion} - $${item.monto.toLocaleString('es-AR')}</li>`)
-          //.join("");
-      //}
-
-      // Traer items del mes (simulado aquí)
-      //itemsList.innerHTML = "<li>Item 1</li><li>Item 2</li>"; // reemplazar con fetch si hay endpoint
-      //popupItems.style.display = "block";
-    //} else if (e.target.classList.contains("registrar-pago")) {
-      //servicioClienteSeleccionado = e.target.dataset.id;
-      //popupPago.style.display = "block";
-    //}
-  //});
+  });
 
   // Cerrar popups
   document.querySelectorAll(".close-btn").forEach(btn => {

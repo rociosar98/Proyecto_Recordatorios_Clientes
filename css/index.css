@@ -14,18 +14,6 @@ body {
 .page-container {
   text-align: center;
 }
-/*
-.titulo {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  color: #ffffff;
-  letter-spacing: 1px;
-}
-
-.titulo::first-letter {
-  color: #ef83e1;
-  font-size: 6rem;
-}*/
 
 .login-container {
   background-color: #ffffff;
