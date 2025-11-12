@@ -9,6 +9,35 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy import extract
 
 
+def meses_de_recurrencia(tipo: str) -> int:
+    mapping = {
+        "mensual": 1,
+        "bimestral": 2,
+        "trimestral": 3,
+        "cuatrimestral": 4,
+        "semestral": 6,
+        "anual": 12
+    }
+    return mapping.get(tipo.lower(), 1)
+
+def toca_facturar(servicio_cliente, anio: int, mes: int) -> bool:
+    """Devuelve True si el servicio toca facturar este mes."""
+    fecha_inicio = servicio_cliente.fecha_inicio
+    meses_transcurridos = (anio - fecha_inicio.year) * 12 + (mes - fecha_inicio.month)
+
+    # Si tiene cuotas → se factura mientras no se cumplan todas
+    if servicio_cliente.cuotas:
+        return meses_transcurridos < servicio_cliente.cuotas
+
+    # Si tiene recurrencia → se factura según el intervalo correspondiente
+    if servicio_cliente.servicio.recurrencia:
+        recurrencia_meses = meses_de_recurrencia(servicio_cliente.servicio.recurrencia.value)
+        return meses_transcurridos % recurrencia_meses == 0
+
+    # Otros casos: siempre facturar
+    return True
+
+
 class HistorialService:
 
     def __init__(self, db) -> None:
@@ -300,101 +329,199 @@ class HistorialService:
 
 
 
+    def listado_mensual(self, anio: int, mes: int, condicion_iva: str = None,
+                            responsable_nombre: str = None):
+
+            query = (
+                self.db.query(ServiciosClienteModel)
+                .join(ClientesModel, ServiciosClienteModel.cliente_id == ClientesModel.id)
+                .join(ServiciosModel, ServiciosClienteModel.servicio_id == ServiciosModel.id)
+                .join(UsuariosModel, ClientesModel.responsable_id == UsuariosModel.id, isouter=True)
+                .options(
+                    joinedload(ServiciosClienteModel.cliente)
+                    .joinedload(ClientesModel.responsable),
+                    joinedload(ServiciosClienteModel.servicio),
+                    joinedload(ServiciosClienteModel.pagos)
+                )
+                .filter(
+                    ServiciosClienteModel.activo == True,
+                    extract('year', ServiciosClienteModel.fecha_inicio) <= anio,
+                    extract('month', ServiciosClienteModel.fecha_inicio) <= mes
+                )
+            )
+
+            if condicion_iva:
+                query = query.filter(ClientesModel.condicion_iva == condicion_iva)
+
+            if responsable_nombre:
+                nombre_completo = (UsuariosModel.nombre + " " + UsuariosModel.apellido)
+                query = query.filter(nombre_completo.ilike(f"%{responsable_nombre}%"))
+
+            servicios_cliente = query.all()
+
+            resultados = []
+            primer_dia_mes = date(anio, mes, 1)
+            if mes == 12:
+                ultimo_dia_mes = date(anio + 1, 1, 1)
+            else:
+                ultimo_dia_mes = date(anio, mes + 1, 1)
+
+            for sc in servicios_cliente:
+                # Verificamos si toca facturar este mes
+                if not toca_facturar(sc, anio, mes):
+                    continue
+
+                pagos = sc.pagos or []
+
+                # Pagos anteriores al mes actual
+                pagos_anteriores = [
+                    p for p in pagos if p.fecha_facturacion and p.fecha_facturacion < primer_dia_mes
+                ]
+                total_pagado_anteriores = sum(p.monto for p in pagos_anteriores)
+
+                # Saldo a favor acumulado (pagos de más en meses previos)
+                saldo_a_favor = max(0, total_pagado_anteriores - sc.precio_congelado)
+
+                # Pagos realizados dentro del mes actual
+                pagos_mes = [
+                    p for p in pagos
+                    if p.fecha_facturacion and primer_dia_mes <= p.fecha_facturacion < ultimo_dia_mes
+                ]
+                total_pagado_mes = sum(p.monto for p in pagos_mes)
+
+                # Monto a facturar este mes (restando saldo previo y pagos actuales)
+                monto_a_mostrar = max(0, sc.precio_congelado - total_pagado_mes - saldo_a_favor)
+
+                # Determinar estado
+                if monto_a_mostrar == 0:
+                    estado = "pagado"
+                elif monto_a_mostrar < sc.precio_congelado:
+                    estado = "parcial"
+                else:
+                    estado = "pendiente"
+
+                resultados.append({
+                    "cliente": {
+                        "id": sc.cliente.id,
+                        "nombre": sc.cliente.nombre,
+                        "apellido": sc.cliente.apellido,
+                        "empresa": sc.cliente.empresa,
+                        "condicion_iva": sc.cliente.condicion_iva,
+                        "responsable": {
+                            "id": sc.cliente.responsable.id if sc.cliente.responsable else None,
+                            "nombre": sc.cliente.responsable.nombre if sc.cliente.responsable else None,
+                            "apellido": sc.cliente.responsable.apellido if sc.cliente.responsable else None
+                        }
+                    },
+                    "servicio": {
+                        "id": sc.servicio.id,
+                        "nombre": sc.servicio.nombre,
+                        "precio": sc.precio_congelado,
+                        "recurrencia": sc.servicio.recurrencia.value if sc.servicio.recurrencia else None,
+                        "cuotas": sc.cuotas
+                    },
+                    "fecha_facturacion": primer_dia_mes,
+                    "monto": monto_a_mostrar,
+                    "estado": estado
+                })
+
+            return resultados
+
 
 
 
 
        
 # FUNCION QUE SI ANDA
-    def listado_mensual(self, anio: int, mes: int, condicion_iva: Optional[str] = None,
-        responsable_nombre: Optional[str] = None):
+    # def listado_mensual(self, anio: int, mes: int, condicion_iva: Optional[str] = None,
+    #     responsable_nombre: Optional[str] = None):
 
-        query = (
-            self.db.query(ServiciosClienteModel)
-            .join(ClientesModel, ServiciosClienteModel.cliente_id == ClientesModel.id)
-            .join(ServiciosModel, ServiciosClienteModel.servicio_id == ServiciosModel.id)
-            .join(UsuariosModel, ClientesModel.responsable_id == UsuariosModel.id, isouter=True)
-            .options(
-                joinedload(ServiciosClienteModel.cliente)
-                .joinedload(ClientesModel.responsable),
-                joinedload(ServiciosClienteModel.servicio),
-                joinedload(ServiciosClienteModel.pagos)  # cargar pagos
-            )
-            .filter(
-                ServiciosClienteModel.activo == True,
-                extract('year', ServiciosClienteModel.fecha_inicio) <= anio,
-                extract('month', ServiciosClienteModel.fecha_inicio) <= mes
-            )
-        )
+    #     query = (
+    #         self.db.query(ServiciosClienteModel)
+    #         .join(ClientesModel, ServiciosClienteModel.cliente_id == ClientesModel.id)
+    #         .join(ServiciosModel, ServiciosClienteModel.servicio_id == ServiciosModel.id)
+    #         .join(UsuariosModel, ClientesModel.responsable_id == UsuariosModel.id, isouter=True)
+    #         .options(
+    #             joinedload(ServiciosClienteModel.cliente)
+    #             .joinedload(ClientesModel.responsable),
+    #             joinedload(ServiciosClienteModel.servicio),
+    #             joinedload(ServiciosClienteModel.pagos)  # cargar pagos
+    #         )
+    #         .filter(
+    #             ServiciosClienteModel.activo == True,
+    #             extract('year', ServiciosClienteModel.fecha_inicio) <= anio,
+    #             extract('month', ServiciosClienteModel.fecha_inicio) <= mes
+    #         )
+    #     )
 
-        if condicion_iva:
-            query = query.filter(ClientesModel.condicion_iva == condicion_iva)
+    #     if condicion_iva:
+    #         query = query.filter(ClientesModel.condicion_iva == condicion_iva)
 
-        if responsable_nombre:
-            nombre_completo = (UsuariosModel.nombre + " " + UsuariosModel.apellido)
-            query = query.filter(nombre_completo.ilike(f"%{responsable_nombre}%"))
+    #     if responsable_nombre:
+    #         nombre_completo = (UsuariosModel.nombre + " " + UsuariosModel.apellido)
+    #         query = query.filter(nombre_completo.ilike(f"%{responsable_nombre}%"))
 
-        servicios_cliente = query.all()
+    #     servicios_cliente = query.all()
 
-        from datetime import date
+    #     from datetime import date
 
-        # ...
-        resultados = []
-        primer_dia_mes = date(anio, mes, 1)
-        ultimo_dia_mes = date(anio + int(mes / 12), ((mes % 12) + 1), 1)
+    #     # ...
+    #     resultados = []
+    #     primer_dia_mes = date(anio, mes, 1)
+    #     ultimo_dia_mes = date(anio + int(mes / 12), ((mes % 12) + 1), 1)
 
-        for sc in servicios_cliente:
-            # Todos los pagos del servicio
-            pagos = sc.pagos or []
+    #     for sc in servicios_cliente:
+    #         # Todos los pagos del servicio
+    #         pagos = sc.pagos or []
 
-            # Pagos realizados este mes
-            pagos_mes = [
-                p for p in pagos
-                if p.fecha_facturacion and primer_dia_mes <= p.fecha_facturacion < ultimo_dia_mes
-            ]
+    #         # Pagos realizados este mes
+    #         pagos_mes = [
+    #             p for p in pagos
+    #             if p.fecha_facturacion and primer_dia_mes <= p.fecha_facturacion < ultimo_dia_mes
+    #         ]
 
-            total_pagado_mes = sum(p.monto for p in pagos_mes)
-            total_pagado_general = sum(p.monto for p in pagos)
+    #         total_pagado_mes = sum(p.monto for p in pagos_mes)
+    #         total_pagado_general = sum(p.monto for p in pagos)
 
-            # Si el cliente pagó este mes o tiene saldo suficiente para cubrir noviembre
-            saldo_a_favor = max(0, total_pagado_general - sc.precio_congelado)
-            saldo_restante = sc.precio_congelado - total_pagado_mes
+    #         # Si el cliente pagó este mes o tiene saldo suficiente para cubrir noviembre
+    #         saldo_a_favor = max(0, total_pagado_general - sc.precio_congelado)
+    #         saldo_restante = sc.precio_congelado - total_pagado_mes
 
-            if total_pagado_mes >= sc.precio_congelado or saldo_a_favor >= sc.precio_congelado:
-                estado = "pagado"
-                monto_a_mostrar = 0
-            elif total_pagado_mes > 0 or saldo_a_favor > 0:
-                monto_a_mostrar = max(0, sc.precio_congelado - total_pagado_mes - saldo_a_favor)
-                estado = "parcial" if monto_a_mostrar > 0 else "pagado"
-            else:
-                estado = "pendiente"
-                monto_a_mostrar = sc.precio_congelado
+    #         if total_pagado_mes >= sc.precio_congelado or saldo_a_favor >= sc.precio_congelado:
+    #             estado = "pagado"
+    #             monto_a_mostrar = 0
+    #         elif total_pagado_mes > 0 or saldo_a_favor > 0:
+    #             monto_a_mostrar = max(0, sc.precio_congelado - total_pagado_mes - saldo_a_favor)
+    #             estado = "parcial" if monto_a_mostrar > 0 else "pagado"
+    #         else:
+    #             estado = "pendiente"
+    #             monto_a_mostrar = sc.precio_congelado
 
-            resultados.append({
-                "cliente": {
-                    "id": sc.cliente.id,
-                    "nombre": sc.cliente.nombre,
-                    "apellido": sc.cliente.apellido,
-                    "empresa": sc.cliente.empresa,
-                    "condicion_iva": sc.cliente.condicion_iva,
-                    "responsable": {
-                        "id": sc.cliente.responsable.id,
-                        "nombre": sc.cliente.responsable.nombre,
-                        "apellido": sc.cliente.responsable.apellido
-                    } if sc.cliente.responsable else None
-                },
-                "servicio": {
-                    "id": sc.servicio.id,
-                    "nombre": sc.servicio.nombre,
-                    "precio": sc.precio_congelado
-                },
-                "fecha_facturacion": primer_dia_mes,
-                "monto": monto_a_mostrar,
-                "estado": estado
-            })
+    #         resultados.append({
+    #             "cliente": {
+    #                 "id": sc.cliente.id,
+    #                 "nombre": sc.cliente.nombre,
+    #                 "apellido": sc.cliente.apellido,
+    #                 "empresa": sc.cliente.empresa,
+    #                 "condicion_iva": sc.cliente.condicion_iva,
+    #                 "responsable": {
+    #                     "id": sc.cliente.responsable.id,
+    #                     "nombre": sc.cliente.responsable.nombre,
+    #                     "apellido": sc.cliente.responsable.apellido
+    #                 } if sc.cliente.responsable else None
+    #             },
+    #             "servicio": {
+    #                 "id": sc.servicio.id,
+    #                 "nombre": sc.servicio.nombre,
+    #                 "precio": sc.precio_congelado
+    #             },
+    #             "fecha_facturacion": primer_dia_mes,
+    #             "monto": monto_a_mostrar,
+    #             "estado": estado
+    #         })
 
 
-        return resultados
+    #     return resultados
 
 
 

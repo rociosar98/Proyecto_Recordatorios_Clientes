@@ -97,43 +97,95 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
 
+
+
   // BOTONES DE RECORDATORIOS
-  const btnRecordatorio10 = document.getElementById("btnRecordatorio");
-  const btnMora20 = document.getElementById("btnMora");
-  const btnCorte28 = document.getElementById("btnCorte");
+const btnRecordatorio10 = document.getElementById("btnRecordatorio");
+const btnMora20 = document.getElementById("btnMora");
+const btnCorte28 = document.getElementById("btnCorte");
 
-  async function enviarRecordatorios(url, mensajeConfirmacion) {
-    if (!confirm("¿Estás seguro de enviar los recordatorios?")) return;
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-      const data = await res.json();
-      alert(mensajeConfirmacion + "\n\n" + data.message);
-    } catch (err) {
-      alert("Error al enviar recordatorios: " + err.message);
+async function enviarRecordatorios(url, mensajeConfirmacion) {
+  if (!confirm("¿Estás seguro de enviar los recordatorios?")) return;
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!res.ok) {
+      const errBody = await res.json();
+      throw new Error(errBody.detail || "Error al enviar recordatorios");
     }
-  }
 
-  if (btnRecordatorio10) {
-    btnRecordatorio10.addEventListener("click", () => 
-      enviarRecordatorios("http://localhost:8000/recordatorios/generar-dia-10", "Recordatorios de día 10 enviados correctamente.")
-    );
-  }
+    const data = await res.json();
 
-  if (btnMora20) {
-    btnMora20.addEventListener("click", () => 
-      enviarRecordatorios("http://localhost:8000/recordatorios/generar-mora", "Alertas de mora (día 20) enviadas correctamente.")
-    );
-  }
+    // Manejo seguro de campos que podrían no existir
+    const generados = data.generados?.length || data.enviados?.length || 0;
+    const enviados = data.enviados?.length || 0;
 
-  if (btnCorte28) {
-    btnCorte28.addEventListener("click", () => 
-      enviarRecordatorios("http://localhost:8000/recordatorios/generar-corte", "Avisos de corte (día 28) enviados correctamente.")
-    );
+    alert(`${mensajeConfirmacion}\n\nGenerados: ${generados}\nEnviados: ${enviados}`);
+  } catch (err) {
+    alert("Error al enviar recordatorios: " + err.message);
+  }
+}
+
+// Asignar listeners a cada botón
+const botones = [
+  { btn: btnRecordatorio10, url: "http://localhost:8000/recordatorios/generar-dia-10", msg: "Recordatorios de día 10 enviados correctamente." },
+  { btn: btnMora20, url: "http://localhost:8000/recordatorios/generar-mora", msg: "Alertas de mora (día 20) enviadas correctamente." },
+  { btn: btnCorte28, url: "http://localhost:8000/recordatorios/generar-corte", msg: "Avisos de corte (día 28) enviados correctamente." }
+];
+
+botones.forEach(({ btn, url, msg }) => {
+  if (btn) {
+    btn.addEventListener("click", () => enviarRecordatorios(url, msg));
   }
 });
+
+
+
+
+  // BOTONES DE RECORDATORIOS
+//   const btnRecordatorio10 = document.getElementById("btnRecordatorio");
+//   const btnMora20 = document.getElementById("btnMora");
+//   const btnCorte28 = document.getElementById("btnCorte");
+
+//   async function enviarRecordatorios(url, mensajeConfirmacion) {
+//     if (!confirm("¿Estás seguro de enviar los recordatorios?")) return;
+//     try {
+//       const res = await fetch(url, {
+//         method: "POST",
+//         headers: {
+//           "Authorization": `Bearer ${token}`,
+//           "Content-Type": "application/json"
+//         }
+//       });
+//       const data = await res.json();
+//       alert(mensajeConfirmacion + "\n\n" + data.message);
+//     } catch (err) {
+//       alert("Error al enviar recordatorios: " + err.message);
+//     }
+//   }
+
+//   if (btnRecordatorio10) {
+//     btnRecordatorio10.addEventListener("click", () => 
+//       enviarRecordatorios("http://localhost:8000/recordatorios/generar-dia-10", "Recordatorios de día 10 enviados correctamente.")
+//     );
+//   }
+
+//   if (btnMora20) {
+//     btnMora20.addEventListener("click", () => 
+//       enviarRecordatorios("http://localhost:8000/recordatorios/generar-mora", "Alertas de mora (día 20) enviadas correctamente.")
+//     );
+//   }
+
+//   if (btnCorte28) {
+//     btnCorte28.addEventListener("click", () => 
+//       enviarRecordatorios("http://localhost:8000/recordatorios/generar-corte", "Avisos de corte (día 28) enviados correctamente.")
+//     );
+//   }
+ });

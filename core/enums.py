@@ -22,8 +22,9 @@ class PermisoUsuario(str, Enum):
     escritura = "escritura"
 
 class TipoRecordatorio(str, Enum):
-    inicial = "inicial"
-    recordatorio = "recordatorio"
+    # inicial = "inicial"
+    # recordatorio = "recordatorio"
+    deuda = "deuda"
     mora = "mora"
     corte = "corte"
 
