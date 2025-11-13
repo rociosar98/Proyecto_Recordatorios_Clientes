@@ -13,9 +13,10 @@ def serializar_fechas(obj):
         return obj.isoformat()  # convierte a string "YYYY-MM-DD"
     raise TypeError(f"Tipo {type(obj)} no serializable")
 
+
 def generar_listado_mensual():
     print(f"🕐 Generando listado mensual - {datetime.now()}")
-    db = Session()  # tu sesión
+    db = Session()
     try:
         service = HistorialService(db)
 
@@ -38,16 +39,16 @@ def generar_listado_mensual():
         nuevo_listado = ListadoMensualModel(contenido=listado_serializado or [])
 
         db.query(ListadoMensualModel).delete()
-        #nuevo_listado = ListadoMensualModel(contenido=listado_serializado)
         db.add(nuevo_listado)
         db.commit()
-        print(f"✅ Listado generado y guardado con {len(listado)} registros")
+        print(f"✅ Listado generado con {len(listado)} registros")
     except Exception as e:
         print(f"❌ Error generando listado mensual: {e}")
     finally:
         db.close()
 
-# 🔔 GENERACIÓN Y ENVÍO DE RECORDATORIOS (días 10, 20, 28)
+
+# GENERACIÓN Y ENVÍO DE RECORDATORIOS (días 10, 20, 28)
 def generar_y_enviar_recordatorios():
     hoy = date.today()
     print(f"📅 Verificando recordatorios automáticos - {hoy}")
@@ -61,11 +62,11 @@ def generar_y_enviar_recordatorios():
             print("ℹ️ Hoy no es día de recordatorios (solo 10, 20 o 28).")
             return
 
-        # 1️⃣ Generar recordatorios si no existen
+        # Generar recordatorios si no existen
         nuevos = service.generar_recordatorios(fecha=hoy)
         print(f"🧾 Recordatorios generados: {len(nuevos)}")
 
-        # 2️⃣ Enviar recordatorios pendientes
+        # Enviar recordatorios pendientes
         enviados = service.enviar_recordatorios()
         print(f"✅ Recordatorios enviados: {len(enviados)}")
         for e in enviados:
@@ -76,23 +77,6 @@ def generar_y_enviar_recordatorios():
     finally:
         db.close()
 
-
-# def generar_listado_mensual():
-#     print(f"🕐 Generando listado mensual - {datetime.now()}")
-#     db = Session()
-#     try:
-#         service = HistorialService(db)
-#         listado = service.listar_por_filtros(None, None)
-#         print(f"✅ Listado generado con {len(listado)} registros")
-#     except Exception as e:
-#         print(f"❌ Error generando listado mensual: {e}")
-#     finally:
-#         db.close()
-
-    #service = HistorialService(db)
-    #listado = service.listar_por_filtros(None, None)
-    #print(f"✅ Listado generado con {len(listado)} registros")
-    #db.close()
 
 def start_scheduler():
     scheduler = BackgroundScheduler()

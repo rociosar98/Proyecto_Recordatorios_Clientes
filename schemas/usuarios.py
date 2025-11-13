@@ -11,6 +11,7 @@ class UsuarioBase(BaseModel): #clase con los campos comunes de usuario
     apellido: str
     correo: EmailStr
     rol: str
+    permiso: PermisoUsuario
     activo: bool
 
     class Config:
@@ -38,6 +39,7 @@ class UsuarioUpdate(BaseModel):
     correo: Optional[EmailStr]
     rol: Optional[str]
     password: Optional[str]
+    permiso: Optional[PermisoUsuario]
 
 
 class UsuarioMini(BaseModel):
@@ -49,5 +51,5 @@ class UsuarioMini(BaseModel):
         from_attributes = True
 
 
-class UsuarioPermiso(BaseModel):
-    permiso: PermisoUsuario
+# class UsuarioPermiso(BaseModel):
+#     permiso: PermisoUsuario

@@ -88,18 +88,6 @@ td.estado {
   font-weight: bold;
   text-transform: uppercase;
 }
-/*
-td.estado.pagado {
-  color: green;
-}
-
-td.estado.pendiente {
-  color: orange;
-}
-
-td.estado.vencido {
-  color: red;
-}*/
 
 /* Mensaje vacío */
 .mensaje-vacio {
@@ -120,10 +108,4 @@ td.estado.vencido {
 .estado-pendiente {
   background-color: #f8d7da; /* rojo claro */
 }
-/*
-.estado-pagado,
-.estado-parcial,
-.estado-pendiente {
-  color: #212529; /* texto negro */
-
 

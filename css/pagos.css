@@ -61,12 +61,10 @@ tr.impago {
 
 tr.pagado td.saldo-favor {
     font-weight: bold;
-    /*color: #28a745; /* verde */
-    /*color: blue; */
     color: black;
 }
 
-/* ✅ NUEVO: Sección de Alertas de Deuda */
+/* NUEVO: Sección de Alertas de Deuda */
 .alertas-deuda {
   margin: 2rem auto;
   width: 80%;

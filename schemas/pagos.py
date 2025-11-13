@@ -63,9 +63,3 @@ class EntradaPagoOut(BaseModel):
     class Config:
         from_attributes = True
 
-# class PagoItem(BaseModel):
-#     descripcion: str
-#     monto: float
-
-#     class Config:
-#         from_attributes = True

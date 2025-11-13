@@ -27,15 +27,6 @@ class Servicios(BaseModel):
             #    raise ValueError("Las cuotas permitidas para pago único son 1, 3, 6 o 12")
         return self
 
-    #@model_validator(mode="after")
-    #def validar_campos_por_tipo(self):
-    #    if self.tipo == TipoServicio.recurrente:
-    #        if not self.recurrencia:
-    #            raise ValueError("Los servicios recurrentes deben tener una recurrencia definida")
-    #    elif self.tipo == TipoServicio.pago_unico:
-    #        if self.recurrencia is not None:
-    #            raise ValueError("Los servicios de pago único no deben tener recurrencia")
-    #    return self
 
     class Config:
         from_attributes = True

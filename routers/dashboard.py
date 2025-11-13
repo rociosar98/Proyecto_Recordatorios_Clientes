@@ -4,13 +4,11 @@ from sqlalchemy.orm import Session
 from database import get_database_session
 from utils.dependencies import admin_required
 from datetime import date
-
 from models.pagos import Pagos
-
 from models.datos_empresa import DatosEmpresa as DatosEmpresaModel
 from schemas.datos_empresa import DatosEmpresa
-#from services.empresa import EmpresaService
 from services.dashboard import DashboardService
+
 
 dashboard_router = APIRouter()
 
@@ -23,13 +21,12 @@ def obtener_datos_empresa(db: Session = Depends(get_database_session)):
         raise HTTPException(status_code=404, detail="Datos de empresa no configurados")
     return datos
 
+
 @dashboard_router.post("/empresa", tags=["Dashboard"], response_model=DatosEmpresa, status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def crear_o_actualizar_datos_empresa(data: DatosEmpresa, db: Session = Depends(get_database_session)):
     service = DashboardService(db)
     datos = service.update_datos_empresa(data)
     return DatosEmpresa.from_orm(datos)
-    #return datos
-
 
 
 # Exportar pagos

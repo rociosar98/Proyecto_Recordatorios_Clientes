@@ -37,6 +37,7 @@ class DashboardService:
             Pagos.fecha_facturacion <= hasta
         ).all()
 
+
     # Generar archivo CSV o Excel
     def generar_archivo(self, pagos, desde, hasta, formato):
         data = []

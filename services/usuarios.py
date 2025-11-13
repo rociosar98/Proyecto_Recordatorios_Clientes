@@ -34,6 +34,8 @@ class UsuariosService():
             usuario.rol = data.rol
         if hasattr(data, 'password') and data.password.strip() != "":
             usuario.password = get_password_hash(data.password)
+        if data.permiso is not None:
+            usuario.permiso = data.permiso
         self.db.commit()
         return
     
@@ -43,9 +45,9 @@ class UsuariosService():
        self.db.commit()
        return
     
-    def otorgar_permiso_usuario(self, id: int, data: Usuarios):
-        usuario = self.db.query(UsuariosModel).filter(UsuariosModel.id == id).first()
-        usuario.permiso = data.permiso
-        self.db.commit()
-        return
+    # def otorgar_permiso_usuario(self, id: int, data: Usuarios):
+    #     usuario = self.db.query(UsuariosModel).filter(UsuariosModel.id == id).first()
+    #     usuario.permiso = data.permiso
+    #     self.db.commit()
+    #     return
     

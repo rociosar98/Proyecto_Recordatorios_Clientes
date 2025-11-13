@@ -144,9 +144,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           <td>${formatearFecha(a.fecha_inicio)}</td>
           <td>${a.fecha_vencimiento ? formatearFecha(a.fecha_vencimiento) : "-"}</td>
           <td>${a.cuotas != null ? a.cuotas : "-"}</td>
-          <td>
-            <button class="btn-borrar" data-id="${a.id}">Desasignar</button>
-          </td>
         `;
         tablaAsignaciones.appendChild(tr);
       });
@@ -155,29 +152,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       alert("Error al cargar asignaciones: " + err.message);
     }
   }
-
-  // Delegación de eventos para desasignar
-  tablaAsignaciones.addEventListener("click", async (e) => {
-    if (!e.target.classList.contains("btn-borrar")) return;
-
-    const id = e.target.getAttribute("data-id");
-    if (!confirm("¿Segur@ que querés desasignar este servicio?")) return;
-
-    try {
-      const resDel = await fetch(`http://localhost:8000/servicios_clientes/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!resDel.ok) {
-        const errBody = await resDel.json();
-        throw new Error(errBody.detail || "Error al desasignar servicio");
-      }
-      alert("Servicio desasignado");
-      await cargarAsignaciones();
-    } catch (err) {
-      alert("Error: " + err.message);
-    }
-  });
 
   // Función para formatear fechas
   function formatearFecha(fechaStr) {

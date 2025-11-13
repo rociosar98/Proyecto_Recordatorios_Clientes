@@ -8,7 +8,7 @@ from middlewares.jwt_bearer import JWTBearer
 from services.usuarios import UsuariosService
 from passlib.context import CryptContext
 from utils.jwt_manager import create_token
-from schemas.usuarios import User, UsuarioBase, Usuarios, UsuarioPublico, UsuarioUpdate,UsuarioPermiso
+from schemas.usuarios import User, UsuarioBase, Usuarios, UsuarioPublico, UsuarioUpdate
 from sqlalchemy.orm import Session
 from utils.dependencies import get_current_user, admin_required
 from utils.security import get_password_hash, verify_password
@@ -96,11 +96,11 @@ def delete_usuarios(id: int, db = Depends(get_database_session)) -> dict:
     return JSONResponse(status_code=200, content={"message": "Se elimino el usuario"})
 
 
-@usuarios_router.put('/usuarios/{id}/permiso', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
-def otorgar_permiso(id: int, usuarios: UsuarioPermiso, db = Depends(get_database_session)) -> dict:
-    usuario = UsuariosService(db).get_usuario_id(id)
-    if not usuario:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
-    UsuariosService(db).otorgar_permiso_usuario(id, usuarios)
-    return JSONResponse(status_code=200, content={"message": "Permiso actualizado correctamente"})
+# @usuarios_router.put('/usuarios/{id}/permiso', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
+# def otorgar_permiso(id: int, usuarios: UsuarioPermiso, db = Depends(get_database_session)) -> dict:
+#     usuario = UsuariosService(db).get_usuario_id(id)
+#     if not usuario:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
+#     UsuariosService(db).otorgar_permiso_usuario(id, usuarios)
+#     return JSONResponse(status_code=200, content={"message": "Permiso actualizado correctamente"})
 

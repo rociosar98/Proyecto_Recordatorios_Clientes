@@ -20,25 +20,8 @@ def historial_pagos(cliente_id: Optional[int] = None, db: Session = Depends(get_
     return pagos
 
 
-# @historial_router.get("/listado-mensual")
-# def listado_mensual(year: Optional[int] = None, month: Optional[int] = None, db: Session = Depends(get_database_session)):
-#     listado = db.query(ListadoMensualModel).order_by(ListadoMensualModel.fecha.desc()).first()
-#     if not listado:
-#         return []
 
-#     # Filtrar por mes y año si se proporcionan (opcional)
-#     if year and month:
-#         filtrado = [
-#             item for item in listado.contenido
-#             if datetime.fromisoformat(item["fecha_facturacion"]).year == year
-#             and datetime.fromisoformat(item["fecha_facturacion"]).month == month
-#         ]
-#         return filtrado
-
-#     return listado.contenido
-
-
-@historial_router.get("/listado-mensual")
+@historial_router.get("/listado-mensual", tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def listado_mensual(db: Session = Depends(get_database_session)):
     listado = db.query(ListadoMensualModel).order_by(ListadoMensualModel.fecha.desc()).first()
     #return listado.contenido if listado else []

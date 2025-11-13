@@ -103,62 +103,6 @@ class HistorialService:
         return resultado
     
 
-    # def listado_mensual(self, anio: int, mes: int, condicion_iva=None, responsable=None):
-    #     hoy = date(anio, mes, 1)
-    #     listado = []
-
-    #     servicios_clientes = self.db.query(ServiciosClienteModel).filter(
-    #         ServiciosClienteModel.activo == True
-    #     ).all()
-
-    #     for sc in servicios_clientes:
-    #         cliente = sc.cliente
-    #         if not cliente:
-    #             continue
-
-    #         if condicion_iva and cliente.condicion_iva != condicion_iva:
-    #             continue
-
-    #         if responsable and getattr(sc, "responsable", None) and sc.responsable.nombre != responsable:
-    #             continue
-
-    #         # ---- NUEVO: Verificar recurrencia y cuotas ----
-    #         if not self.servicio_corresponde_a_mes(sc, hoy):
-    #             continue
-
-    #         # Total pagado hasta este mes
-    #         pagos = self.db.query(PagosModel).filter_by(servicio_cliente_id=sc.id).all()
-    #         total_pagado = sum(p.monto for p in pagos if p.fecha_pago and p.fecha_pago <= hoy)
-
-    #         monto_mes = sc.precio_congelado
-    #         saldo_a_favor = max(total_pagado - monto_mes, 0)
-    #         saldo_pendiente = max(monto_mes - total_pagado, 0)
-
-    #         # Estado
-    #         if saldo_pendiente == 0:
-    #             estado = "pagado"
-    #             monto_a_mostrar = 0
-    #         elif saldo_pendiente < monto_mes:
-    #             estado = "parcial"
-    #             monto_a_mostrar = saldo_pendiente
-    #         else:
-    #             estado = "pendiente"
-    #             monto_a_mostrar = saldo_pendiente
-
-    #         listado.append({
-    #             "Cliente": cliente.nombre,
-    #             "Empresa": cliente.empresa,
-    #             "Condición IVA": cliente.condicion_iva,
-    #             "Responsable": getattr(sc, "responsable", None).nombre if getattr(sc, "responsable", None) else "-",
-    #             "Servicio": sc.servicio.nombre,
-    #             "Fecha Facturación": hoy.strftime("%Y-%m-%d"),
-    #             "Monto": monto_a_mostrar,
-    #             "Estado": estado,
-    #             "Saldo a Favor": saldo_a_favor
-    #         })
-
-    #     return listado
-
     # @staticmethod
     # def servicio_corresponde_a_mes(sc, hoy: date) -> bool:
     #     """Determina si un servicio corresponde facturar este mes según recurrencia y cuotas."""
@@ -193,139 +137,11 @@ class HistorialService:
 
     #     return True  # por defecto
 
-        
 
     # def calcular_numero_cuota(self, sc, hoy: date) -> int:
     #     if not sc.cuotas:
     #         return None
     #     return (hoy.year - sc.fecha_inicio.year) * 12 + (hoy.month - sc.fecha_inicio.month) + 1
-
-
-
-
-
-    # def listado_mensual(self, anio: int, mes: int, condicion_iva: Optional[str] = None,
-    #         responsable_nombre: Optional[str] = None):
-
-    #     query = (
-    #         self.db.query(ServiciosClienteModel)
-    #         .join(ClientesModel, ServiciosClienteModel.cliente_id == ClientesModel.id)
-    #         .join(ServiciosModel, ServiciosClienteModel.servicio_id == ServiciosModel.id)
-    #         .join(UsuariosModel, ClientesModel.responsable_id == UsuariosModel.id, isouter=True)
-    #         .options(
-    #             joinedload(ServiciosClienteModel.cliente)
-    #             .joinedload(ClientesModel.responsable),
-    #             joinedload(ServiciosClienteModel.servicio),
-    #             joinedload(ServiciosClienteModel.pagos)  # cargar pagos
-    #         )
-    #         .filter(
-    #             ServiciosClienteModel.activo == True,
-    #             extract('year', ServiciosClienteModel.fecha_inicio) <= anio,
-    #             extract('month', ServiciosClienteModel.fecha_inicio) <= mes
-    #         )
-    #     )
-
-    #     if condicion_iva:
-    #         query = query.filter(ClientesModel.condicion_iva == condicion_iva)
-
-    #     if responsable_nombre:
-    #         nombre_completo = (UsuariosModel.nombre + " " + UsuariosModel.apellido)
-    #         query = query.filter(nombre_completo.ilike(f"%{responsable_nombre}%"))
-
-    #     servicios_cliente = query.all()
-
-    #     resultados = []
-    #     primer_dia_mes = date(anio, mes, 1)
-    #     ultimo_dia_mes = date(anio + int(mes / 12), ((mes % 12) + 1), 1)
-
-    #     for sc in servicios_cliente:
-    #         # ---- NUEVO: Verificar recurrencia y cuotas ----
-    #         if not self.servicio_corresponde_a_mes(sc, primer_dia_mes):
-    #             continue
-
-    #         pagos = sc.pagos or []
-
-    #         # Pagos realizados este mes
-    #         pagos_mes = [
-    #             p for p in pagos
-    #             if p.fecha_facturacion and primer_dia_mes <= p.fecha_facturacion < ultimo_dia_mes
-    #         ]
-
-    #         total_pagado_mes = sum(p.monto for p in pagos_mes)
-    #         total_pagado_general = sum(p.monto for p in pagos if p.fecha_facturacion <= primer_dia_mes)
-
-    #         # Si el cliente pagó este mes o tiene saldo suficiente para cubrir noviembre
-    #         saldo_a_favor = max(0, total_pagado_general - sc.precio_congelado)
-    #         saldo_restante = sc.precio_congelado - total_pagado_mes
-
-    #         if total_pagado_mes >= sc.precio_congelado or saldo_a_favor >= sc.precio_congelado:
-    #             estado = "pagado"
-    #             monto_a_mostrar = 0
-    #         elif total_pagado_mes > 0 or saldo_a_favor > 0:
-    #             monto_a_mostrar = max(0, sc.precio_congelado - total_pagado_mes - saldo_a_favor)
-    #             estado = "parcial" if monto_a_mostrar > 0 else "pagado"
-    #         else:
-    #             estado = "pendiente"
-    #             monto_a_mostrar = sc.precio_congelado
-
-    #         resultados.append({
-    #             "cliente": {
-    #                 "id": sc.cliente.id,
-    #                 "nombre": sc.cliente.nombre,
-    #                 "apellido": sc.cliente.apellido,
-    #                 "empresa": sc.cliente.empresa,
-    #                 "condicion_iva": sc.cliente.condicion_iva,
-    #                 "responsable": {
-    #                     "id": sc.cliente.responsable.id,
-    #                     "nombre": sc.cliente.responsable.nombre,
-    #                     "apellido": sc.cliente.responsable.apellido
-    #                 } if sc.cliente.responsable else None
-    #             },
-    #             "servicio": {
-    #                 "id": sc.servicio.id,
-    #                 "nombre": sc.servicio.nombre,
-    #                 "precio": sc.precio_congelado
-    #             },
-    #             "fecha_facturacion": primer_dia_mes,
-    #             "monto": monto_a_mostrar,
-    #             "estado": estado
-    #         })
-
-    #     return resultados
-
-
-    # # ---- MÉTODO AUXILIAR ----
-    # @staticmethod
-    # def servicio_corresponde_a_mes(sc, hoy: date) -> bool:
-    #     """Determina si un servicio corresponde facturar este mes según recurrencia y cuotas."""
-    #     if sc.fecha_inicio > hoy:
-    #         return False
-    #     if sc.fecha_vencimiento and sc.fecha_vencimiento < hoy:
-    #         return False
-
-    #     # Pago único con cuotas
-    #     if sc.cuotas:
-    #         numero_cuota = (hoy.year - sc.fecha_inicio.year) * 12 + (hoy.month - sc.fecha_inicio.month) + 1
-    #         if numero_cuota < 1 or numero_cuota > sc.cuotas:
-    #             return False
-
-    #     recurrencia = getattr(sc.servicio, "recurrencia", "mensual")
-    #     if recurrencia == "mensual":
-    #         return True
-    #     meses_desde_inicio = (hoy.year - sc.fecha_inicio.year) * 12 + (hoy.month - sc.fecha_inicio.month)
-    #     if recurrencia == "bimestral":
-    #         return meses_desde_inicio % 2 == 0
-    #     if recurrencia == "trimestral":
-    #         return meses_desde_inicio % 3 == 0
-    #     if recurrencia == "cuatrimestral":
-    #         return meses_desde_inicio % 4 == 0
-    #     if recurrencia == "semestral":
-    #         return meses_desde_inicio % 6 == 0
-    #     if recurrencia == "anual":
-    #         return hoy.month == sc.fecha_inicio.month
-
-    #     return True
-
 
 
 
@@ -427,10 +243,6 @@ class HistorialService:
 
             return resultados
 
-
-
-
-
        
 # FUNCION QUE SI ANDA
     # def listado_mensual(self, anio: int, mes: int, condicion_iva: Optional[str] = None,
@@ -523,67 +335,6 @@ class HistorialService:
 
     #     return resultados
 
-
-
-
-
-    # def listado_mensual(self, anio: int, mes: int, condicion_iva: Optional[str], responsable_nombre: Optional[str]):
-    #     query = (
-    #         self.db.query(PagosModel)
-    #         .join(ServiciosClienteModel, PagosModel.servicio_cliente_id == ServiciosClienteModel.id)
-    #         .join(ClientesModel, ServiciosClienteModel.cliente_id == ClientesModel.id)
-    #         .join(UsuariosModel, ClientesModel.responsable_id == UsuariosModel.id, isouter=True)
-    #         .options(
-    #             joinedload(PagosModel.servicio_cliente)
-    #             .joinedload(ServiciosClienteModel.cliente)
-    #             .joinedload(ClientesModel.responsable)
-    #         )
-    #     )
-
-    #     # Filtrar por mes y año
-    #     query = query.filter(
-    #         PagosModel.fecha_facturacion >= date(anio, mes, 1),
-    #         PagosModel.fecha_facturacion < date(anio + int(mes / 12), ((mes % 12) + 1), 1)
-    #     )
-
-    #     if condicion_iva:
-    #         query = query.filter(ClientesModel.condicion_iva == condicion_iva)
-
-    #     if responsable_nombre:
-    #         nombre_completo = (UsuariosModel.nombre + " " + UsuariosModel.apellido)
-    #         query = query.filter(nombre_completo.ilike(f"%{responsable_nombre}%"))
-
-    #     pagos = query.all()
-
-    #     resultados = []
-    #     for pago in pagos:
-    #         resultados.append({
-    #             "id": pago.id,
-    #             "servicio_cliente_id": pago.servicio_cliente_id,
-    #             "monto": pago.monto,
-    #             "fecha_facturacion": pago.fecha_facturacion,
-    #             "fecha_pago": pago.fecha_pago,
-    #             "estado": pago.estado.value,
-    #             "observaciones": pago.observaciones,
-    #             "cliente": {
-    #                 "id": pago.servicio_cliente.cliente.id,
-    #                 "nombre": pago.servicio_cliente.cliente.nombre,
-    #                 "apellido": pago.servicio_cliente.cliente.apellido,
-    #                 "empresa": pago.servicio_cliente.cliente.empresa,
-    #                 "condicion_iva": pago.servicio_cliente.cliente.condicion_iva,
-    #                 "responsable": {
-    #                     "id": pago.servicio_cliente.cliente.responsable.id,
-    #                     "nombre": pago.servicio_cliente.cliente.responsable.nombre,
-    #                     "apellido": pago.servicio_cliente.cliente.responsable.apellido
-    #                 } if pago.servicio_cliente.cliente.responsable else None
-    #             },
-    #             "servicio": {
-    #                 "id": pago.servicio_cliente.servicio.id,
-    #                 "nombre": pago.servicio_cliente.servicio.nombre
-    #             }
-    #         })
-
-    #     return resultados
     
 
     # filtrar historial por mes, año, o fecha personalizada
