@@ -69,7 +69,7 @@ def get_usuario_id(id: int = Path(ge=1, le=2000), db=Depends(get_database_sessio
     return result
 
 
-@usuarios_router.post('/usuarios', tags=['Usuarios'], response_model=dict, status_code=status.HTTP_201_CREATED, dependencies=[Depends(admin_required)])
+@usuarios_router.post('/usuarios', tags=['Usuarios'], response_model=dict, status_code=status.HTTP_201_CREATED)
 def create_usuarios(usuario: Usuarios, db: Session = Depends(get_database_session)) -> dict:
      # validación de token y usuario actual
     usuario.password = get_password_hash(usuario.password)
@@ -94,13 +94,4 @@ def delete_usuarios(id: int, db = Depends(get_database_session)) -> dict:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
     UsuariosService(db).delete_usuarios(id)
     return JSONResponse(status_code=200, content={"message": "Se elimino el usuario"})
-
-
-# @usuarios_router.put('/usuarios/{id}/permiso', tags=['Usuarios'], response_model=dict, status_code=200, dependencies=[Depends(admin_required)])
-# def otorgar_permiso(id: int, usuarios: UsuarioPermiso, db = Depends(get_database_session)) -> dict:
-#     usuario = UsuariosService(db).get_usuario_id(id)
-#     if not usuario:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el usuario")
-#     UsuariosService(db).otorgar_permiso_usuario(id, usuarios)
-#     return JSONResponse(status_code=200, content={"message": "Permiso actualizado correctamente"})
 

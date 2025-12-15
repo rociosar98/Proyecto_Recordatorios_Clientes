@@ -45,9 +45,4 @@ class UsuariosService():
        self.db.commit()
        return
     
-    # def otorgar_permiso_usuario(self, id: int, data: Usuarios):
-    #     usuario = self.db.query(UsuariosModel).filter(UsuariosModel.id == id).first()
-    #     usuario.permiso = data.permiso
-    #     self.db.commit()
-    #     return
-    
+        

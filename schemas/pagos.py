@@ -51,6 +51,7 @@ class ResumenPagoOut(BaseModel):
     class Config:
         from_attributes = True
 
+
 class EntradaPagoOut(BaseModel):
     cliente_nombre: str
     empresa: str

@@ -28,17 +28,6 @@ def listado_mensual(db: Session = Depends(get_database_session)):
     return listado.contenido if listado and listado.contenido else []
 
 
-
-# @historial_router.get('/listado-mensual', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
-# def listado_mensual(
-#     #fecha: date,
-#     condicion_iva: Optional[str] = None,
-#     responsable_nombre: Optional[str] = None,
-#     db: Session = Depends(get_database_session)
-# ):
-#     return HistorialService(db).listar_por_filtros(condicion_iva, responsable_nombre)
-
-
 @historial_router.get('/listado-entradas', tags=['Historial'], status_code=status.HTTP_200_OK, dependencies=[Depends(admin_required)])
 def listado_entradas(
     periodo: Optional[str] = None,  # 'mensual', 'anual'

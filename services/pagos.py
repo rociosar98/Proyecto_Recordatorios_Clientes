@@ -5,6 +5,9 @@ from datetime import date, datetime
 from typing import List, Optional
 from core.enums import EstadoPago
 from sqlalchemy import func
+from fastapi_mail import FastMail, MessageSchema, MessageType
+from core.mail_config import conf, fast_mail
+from fastapi import BackgroundTasks
 
 
 class PagosService:
@@ -14,7 +17,7 @@ class PagosService:
         
 
     def registrar_pago(self, servicio_cliente_id: int, monto: float, fecha_facturacion: date,
-    fecha_pago: Optional[date] = None, observaciones: Optional[str] = None):
+    fecha_pago: Optional[date] = None, observaciones: Optional[str] = None, background_tasks: BackgroundTasks = None):
         # Verificar que el servicio exista
         servicio = self.db.query(ServiciosClienteModel).filter_by(id = servicio_cliente_id).first()
         if not servicio:
@@ -53,11 +56,11 @@ class PagosService:
         self.db.refresh(nuevo_pago)
 
         # Enviar confirmación automática
-        self.enviar_confirmacion_pago(servicio, monto, fecha_pago or fecha_facturacion)
+        self.enviar_confirmacion_pago(servicio, monto, fecha_pago or fecha_facturacion, background_tasks)
 
         return nuevo_pago
     
-    def enviar_confirmacion_pago(self, servicio_cliente, monto: float, fecha: date):
+    def enviar_confirmacion_pago(self, servicio_cliente, monto: float, fecha, background_tasks: BackgroundTasks = None):
         cliente = servicio_cliente.cliente
         servicio = servicio_cliente.servicio
 
@@ -73,20 +76,39 @@ class PagosService:
 
     ¡Gracias por tu pago!
     """
+        
+        message = MessageSchema(
+            subject="Confirmación de Pago",
+            recipients=[cliente.correo],
+            body=mensaje,
+            subtype=MessageType.plain  # o html si querés usar HTML
+        )
+
+        if background_tasks:
+            background_tasks.add_task(fast_mail.send_message, message)
+
         medio_contacto = cliente.metodo_aviso
 
-        if medio_contacto in ["email", "ambos"]:
-            self.enviar_email(destinatario=cliente.correo, asunto="Confirmación de Pago", cuerpo=mensaje)
+        if medio_contacto in ["email", "ambos"] and background_tasks:
+            self.enviar_email(destinatario=cliente.correo, asunto="Confirmación de Pago", cuerpo=mensaje, background_tasks=background_tasks)
         if medio_contacto in ["whatsapp", "ambos"]:
             self.enviar_whatsapp(numero=cliente.whatsapp, mensaje=mensaje)
 
-    def enviar_email(self, destinatario: str, asunto: str, cuerpo: str):
-        print(f"[EMAIL] Enviando a {destinatario}:\nAsunto: {asunto}\n{cuerpo}")
+    def enviar_email(self, destinatario: str, asunto: str, cuerpo: str, background_tasks: BackgroundTasks):
+        message = MessageSchema(
+            subject=asunto,
+            recipients=[destinatario],
+            body=cuerpo,
+            subtype=MessageType.html
+        )
+        if background_tasks:
+            background_tasks.add_task(fast_mail.send_message, message)
 
-    def enviar_whatsapp(self, numero: str, mensaje: str):
-        print(f"[WHATSAPP] Enviando a {numero}:\n{mensaje}")
+    # def enviar_email(self, destinatario: str, asunto: str, cuerpo: str):
+    #     print(f"[EMAIL] Enviando a {destinatario}:\nAsunto: {asunto}\n{cuerpo}")
 
-
+    # def enviar_whatsapp(self, numero: str, mensaje: str):
+    #     print(f"[WHATSAPP] Enviando a {numero}:\n{mensaje}")
     
     def listar_pagos(self) -> List[PagoModel]:
         return self.db.query(PagoModel).all()
@@ -120,7 +142,7 @@ class PagosService:
             elif total_pagado > 0:
                 estado = "parcial"
             else:
-                estado = "impago"
+                estado = "pendiente"
 
             #saldo = monto_total - total_pagado
             saldo = max(monto_total - total_pagado, 0)

@@ -52,6 +52,7 @@ class HistorialService:
                 joinedload(PagosModel.servicio_cliente).joinedload(ServiciosClienteModel.cliente),
                 joinedload(PagosModel.servicio_cliente).joinedload(ServiciosClienteModel.servicio)
             )
+            .order_by(PagosModel.fecha_facturacion.desc(), PagosModel.fecha_pago.desc())
         )
 
         if cliente_id:
@@ -103,48 +104,6 @@ class HistorialService:
         return resultado
     
 
-    # @staticmethod
-    # def servicio_corresponde_a_mes(sc, hoy: date) -> bool:
-    #     """Determina si un servicio corresponde facturar este mes según recurrencia y cuotas."""
-    #     # No empieza todavía
-    #     if sc.fecha_inicio > hoy:
-    #         return False
-    #     # Ya venció
-    #     if sc.fecha_vencimiento and sc.fecha_vencimiento < hoy:
-    #         return False
-
-    #     # Pago único con cuotas
-    #     if sc.cuotas:
-    #         numero_cuota = (hoy.year - sc.fecha_inicio.year) * 12 + (hoy.month - sc.fecha_inicio.month) + 1
-    #         if numero_cuota < 1 or numero_cuota > sc.cuotas:
-    #             return False
-
-    #     # Servicios recurrentes
-    #     recurrencia = getattr(sc.servicio, "recurrencia", "mensual")
-    #     if recurrencia == "mensual":
-    #         return True
-    #     meses_desde_inicio = (hoy.year - sc.fecha_inicio.year) * 12 + (hoy.month - sc.fecha_inicio.month)
-    #     if recurrencia == "bimestral":
-    #         return meses_desde_inicio % 2 == 0
-    #     if recurrencia == "trimestral":
-    #         return meses_desde_inicio % 3 == 0
-    #     if recurrencia == "cuatrimestral":
-    #         return meses_desde_inicio % 4 == 0
-    #     if recurrencia == "semestral":
-    #         return meses_desde_inicio % 6 == 0
-    #     if recurrencia == "anual":
-    #         return hoy.month == sc.fecha_inicio.month
-
-    #     return True  # por defecto
-
-
-    # def calcular_numero_cuota(self, sc, hoy: date) -> int:
-    #     if not sc.cuotas:
-    #         return None
-    #     return (hoy.year - sc.fecha_inicio.year) * 12 + (hoy.month - sc.fecha_inicio.month) + 1
-
-
-
     def listado_mensual(self, anio: int, mes: int, condicion_iva: str = None,
                             responsable_nombre: str = None):
 
@@ -177,10 +136,7 @@ class HistorialService:
 
             resultados = []
             primer_dia_mes = date(anio, mes, 1)
-            if mes == 12:
-                ultimo_dia_mes = date(anio + 1, 1, 1)
-            else:
-                ultimo_dia_mes = date(anio, mes + 1, 1)
+            ultimo_dia_mes = date(anio, mes + 1, 1) if mes < 12 else date(anio + 1, 1, 1)
 
             for sc in servicios_cliente:
                 # Verificamos si toca facturar este mes
@@ -205,18 +161,27 @@ class HistorialService:
                 ]
                 total_pagado_mes = sum(p.monto for p in pagos_mes)
 
+                # Total pagado desde que empezó el servicio
+                #total_pagado = sum(p.monto for p in pagos)
+
                 # Monto a facturar este mes (restando saldo previo y pagos actuales)
                 monto_a_mostrar = max(0, sc.precio_congelado - total_pagado_mes - saldo_a_favor)
+
+                saldo_mes = monto_a_mostrar
+
+                # monto_a_mostrar = max(0, sc.precio_congelado - total_pagado_mes - max(0, total_pagado_anteriores - sc.precio_congelado))
 
                 # Determinar estado
                 if monto_a_mostrar == 0:
                     estado = "pagado"
-                elif monto_a_mostrar < sc.precio_congelado:
+                #elif monto_a_mostrar < sc.precio_congelado:
+                elif total_pagado_mes > 0 or saldo_a_favor > 0:
                     estado = "parcial"
                 else:
                     estado = "pendiente"
 
                 resultados.append({
+                    "servicio_cliente_id": sc.id,
                     "cliente": {
                         "id": sc.cliente.id,
                         "nombre": sc.cliente.nombre,
@@ -237,105 +202,80 @@ class HistorialService:
                         "cuotas": sc.cuotas
                     },
                     "fecha_facturacion": primer_dia_mes,
+                    "monto_mes": sc.precio_congelado,
                     "monto": monto_a_mostrar,
+                    "total_pagado": total_pagado_mes,  # suma de pagos del mes + saldo previo
+                    "saldo_mes": saldo_mes,
+                    "saldo_a_favor": saldo_a_favor,
                     "estado": estado
                 })
 
             return resultados
-
-       
-# FUNCION QUE SI ANDA
-    # def listado_mensual(self, anio: int, mes: int, condicion_iva: Optional[str] = None,
-    #     responsable_nombre: Optional[str] = None):
-
-    #     query = (
-    #         self.db.query(ServiciosClienteModel)
-    #         .join(ClientesModel, ServiciosClienteModel.cliente_id == ClientesModel.id)
-    #         .join(ServiciosModel, ServiciosClienteModel.servicio_id == ServiciosModel.id)
-    #         .join(UsuariosModel, ClientesModel.responsable_id == UsuariosModel.id, isouter=True)
-    #         .options(
-    #             joinedload(ServiciosClienteModel.cliente)
-    #             .joinedload(ClientesModel.responsable),
-    #             joinedload(ServiciosClienteModel.servicio),
-    #             joinedload(ServiciosClienteModel.pagos)  # cargar pagos
-    #         )
-    #         .filter(
-    #             ServiciosClienteModel.activo == True,
-    #             extract('year', ServiciosClienteModel.fecha_inicio) <= anio,
-    #             extract('month', ServiciosClienteModel.fecha_inicio) <= mes
-    #         )
-    #     )
-
-    #     if condicion_iva:
-    #         query = query.filter(ClientesModel.condicion_iva == condicion_iva)
-
-    #     if responsable_nombre:
-    #         nombre_completo = (UsuariosModel.nombre + " " + UsuariosModel.apellido)
-    #         query = query.filter(nombre_completo.ilike(f"%{responsable_nombre}%"))
-
-    #     servicios_cliente = query.all()
-
-    #     from datetime import date
-
-    #     # ...
-    #     resultados = []
-    #     primer_dia_mes = date(anio, mes, 1)
-    #     ultimo_dia_mes = date(anio + int(mes / 12), ((mes % 12) + 1), 1)
-
-    #     for sc in servicios_cliente:
-    #         # Todos los pagos del servicio
-    #         pagos = sc.pagos or []
-
-    #         # Pagos realizados este mes
-    #         pagos_mes = [
-    #             p for p in pagos
-    #             if p.fecha_facturacion and primer_dia_mes <= p.fecha_facturacion < ultimo_dia_mes
-    #         ]
-
-    #         total_pagado_mes = sum(p.monto for p in pagos_mes)
-    #         total_pagado_general = sum(p.monto for p in pagos)
-
-    #         # Si el cliente pagó este mes o tiene saldo suficiente para cubrir noviembre
-    #         saldo_a_favor = max(0, total_pagado_general - sc.precio_congelado)
-    #         saldo_restante = sc.precio_congelado - total_pagado_mes
-
-    #         if total_pagado_mes >= sc.precio_congelado or saldo_a_favor >= sc.precio_congelado:
-    #             estado = "pagado"
-    #             monto_a_mostrar = 0
-    #         elif total_pagado_mes > 0 or saldo_a_favor > 0:
-    #             monto_a_mostrar = max(0, sc.precio_congelado - total_pagado_mes - saldo_a_favor)
-    #             estado = "parcial" if monto_a_mostrar > 0 else "pagado"
-    #         else:
-    #             estado = "pendiente"
-    #             monto_a_mostrar = sc.precio_congelado
-
-    #         resultados.append({
-    #             "cliente": {
-    #                 "id": sc.cliente.id,
-    #                 "nombre": sc.cliente.nombre,
-    #                 "apellido": sc.cliente.apellido,
-    #                 "empresa": sc.cliente.empresa,
-    #                 "condicion_iva": sc.cliente.condicion_iva,
-    #                 "responsable": {
-    #                     "id": sc.cliente.responsable.id,
-    #                     "nombre": sc.cliente.responsable.nombre,
-    #                     "apellido": sc.cliente.responsable.apellido
-    #                 } if sc.cliente.responsable else None
-    #             },
-    #             "servicio": {
-    #                 "id": sc.servicio.id,
-    #                 "nombre": sc.servicio.nombre,
-    #                 "precio": sc.precio_congelado
-    #             },
-    #             "fecha_facturacion": primer_dia_mes,
-    #             "monto": monto_a_mostrar,
-    #             "estado": estado
-    #         })
-
-
-    #     return resultados
-
     
+
+    def listado_mensual_actualizado(self, db, anio, mes):
+        #"""Devuelve listado mensual con total_pagado, saldo y saldo_a_favor actualizado."""
+        servicios = db.query(ServiciosClienteModel).options(joinedload(ServiciosClienteModel.cliente)).all()
+        listado = []
+
+        primer_dia_mes = date(anio, mes, 1)
+        if mes == 12:
+            primer_dia_mes_siguiente = date(anio + 1, 1, 1)
+        else:
+            primer_dia_mes_siguiente = date(anio, mes + 1, 1)
+
+        for sc in servicios:
+            # Traer todos los pagos del cliente/servicio desde la DB
+            pagos = (
+                db.query(PagosModel)
+                .filter(PagosModel.servicio_cliente_id == sc.id)
+                .all()
+            )
+
+            # Pagos anteriores al mes actual
+            pagos_anteriores = [p for p in pagos if p.fecha_facturacion < primer_dia_mes]
+            total_pagado_anteriores = sum(p.monto for p in pagos_anteriores)
+
+            # Saldo a favor acumulado
+            saldo_a_favor = max(0, total_pagado_anteriores - sc.precio_congelado)
+
+            # Pagos dentro del mes actual
+            pagos_mes = [p for p in pagos if primer_dia_mes <= p.fecha_facturacion < primer_dia_mes_siguiente]
+            total_pagado_mes = sum(p.monto for p in pagos_mes)
+
+            # Monto base del mes
+            if sc.cuotas and sc.cuotas > 0:
+                monto_mes = max(0, sc.precio_congelado / sc.cuotas - total_pagado_mes - saldo_a_favor)
+            else:
+                monto_mes = max(0, sc.precio_congelado - total_pagado_mes - saldo_a_favor)
+
+            # Estado
+            if monto_mes == 0:
+                estado = "pagado"
+            elif total_pagado_mes > 0:
+                estado = "parcial"
+            else:
+                estado = "pendiente"
+
+            listado.append({
+                "servicio_cliente_id": sc.id,
+                "cliente": {
+                    "nombre": sc.cliente.nombre,
+                    "apellido": sc.cliente.apellido,
+                    "empresa": sc.cliente.empresa
+                },
+                "servicio": {
+                    "nombre": sc.servicio.nombre
+                },
+                "monto_mes": monto_mes,
+                "total_pagado_mes": total_pagado_mes,
+                "saldo_mes": max(0, monto_mes - total_pagado_mes),
+                "saldo_a_favor": saldo_a_favor,
+                "estado": estado
+            })
+
+        return listado
+
 
     # filtrar historial por mes, año, o fecha personalizada
     def listar_entradas(self, periodo: Optional[str], anio: Optional[int], mes: Optional[int], fecha_inicio: Optional[date], fecha_fin: Optional[date]):

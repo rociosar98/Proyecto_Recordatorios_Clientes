@@ -16,7 +16,3 @@ class RecordatorioOut(BaseModel):
     class Config:
         from_attributes = True
 
-
-class PagoManualIn(BaseModel):
-    servicio_cliente_id: int
-    tipo_pago: EstadoPago  # "pagado" o "parcial"

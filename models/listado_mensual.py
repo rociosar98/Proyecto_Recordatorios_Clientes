@@ -9,4 +9,3 @@ class ListadoMensual(Base):
     fecha = Column(Date, default=date.today)
     contenido = Column(JSON)  # guarda toda la info del listado
 
-

@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from middlewares.jwt_bearer import JWTBearer
 from services.recordatorios import RecordatoriosService
 from sqlalchemy.orm import Session, joinedload
-from schemas.recordatorios import RecordatorioOut, PagoManualIn
+from schemas.recordatorios import RecordatorioOut
 from models.clientes import Clientes as ClientesModel
 from models.servicios import Servicios as ServiciosModel, ServiciosCliente as ServiciosClienteModel
 from datetime import date

@@ -8,7 +8,6 @@ from routers.clientes import clientes_router
 from routers.servicios import servicios_router
 from routers.recordatorios import recordatorios_router
 from routers.pagos import pagos_router
-#from routers.empresa import empresa_router
 from routers.resumenes import resumen_router
 from routers.historial import historial_router
 from routers.dashboard import dashboard_router
@@ -33,7 +32,6 @@ app.include_router(clientes_router)
 app.include_router(servicios_router)
 app.include_router(recordatorios_router)
 app.include_router(pagos_router)
-#app.include_router(empresa_router)
 app.include_router(resumen_router)
 app.include_router(historial_router)
 app.include_router(dashboard_router)
