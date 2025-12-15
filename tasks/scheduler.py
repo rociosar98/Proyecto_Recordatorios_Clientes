@@ -83,9 +83,8 @@ def start_scheduler():
     scheduler = BackgroundScheduler()
 
     # Día 1 → genera listado mensual a las 00:00
-    # Ejecuta el 1 de cada mes a la medianoche
-    #scheduler.add_job(generar_listado_mensual, "cron", day=1, hour=0, minute=0)
-    scheduler.add_job(generar_listado_mensual, "interval", minutes=1) #para pruebas
+    scheduler.add_job(generar_listado_mensual, "cron", day=1, hour=0, minute=0)
+    #scheduler.add_job(generar_listado_mensual, "interval", minutes=1) # PARA PRUEBAS
 
     # Día 1 → generar pagos automáticos a las 00:05
     scheduler.add_job(generar_pagos_mensuales, "cron", day=1, hour=0, minute=5)
