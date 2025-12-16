@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from database import get_database_session
 from schemas.pagos import PagoIn, PagoOut, ResumenPagoOut
@@ -6,7 +6,6 @@ from services.pagos import PagosService
 from typing import List
 from services.historial import HistorialService
 from datetime import date
-from fastapi import BackgroundTasks
 
 
 pagos_router = APIRouter()

@@ -6,6 +6,9 @@ from models.pagos import Pagos as PagoModel
 from models.datos_empresa import DatosEmpresa as DatosEmpresaModel
 from models.listado_mensual import ListadoMensual as ListadoMensualModel
 from datetime import date
+from fastapi_mail import FastMail, MessageSchema, MessageType
+from core.mail_config import conf, fast_mail
+from fastapi import BackgroundTasks
 
 
 class ResumenesService:
@@ -14,7 +17,7 @@ class ResumenesService:
         self.db = db
         
 
-    def enviar_resumenes(self):
+    def enviar_resumenes(self, background_tasks: BackgroundTasks):
         # Obtener el último listado mensual
         listado = (
             self.db.query(ListadoMensualModel)
@@ -67,17 +70,22 @@ class ResumenesService:
             # Método de aviso
             metodo = (cliente.metodo_aviso or "ambos").lower()
 
-            if metodo in ["mail", "ambos"]:
-                if cliente.correo:
-                    self.enviar_por_mail(cliente.correo, resumen)
-                else:
-                    print(f"[WARN] Cliente {cliente.nombre} {cliente.apellido} no tiene correo definido")
+            if metodo in ["mail", "ambos"] and cliente.correo:
+                self.enviar_por_mail(
+                destinatario=cliente.correo,
+                resumen=resumen,
+                background_tasks=background_tasks
+            )
+                # self.enviar_por_mail(cliente.correo, resumen)
 
-            if metodo in ["whatsapp", "ambos"]:
-                if cliente.whatsapp:
-                    self.enviar_por_whatsapp(cliente.whatsapp, resumen)
-                else:
-                    print(f"[WARN] Cliente {cliente.nombre} {cliente.apellido} no tiene WhatsApp definido")
+                # else:
+                #     print(f"[WARN] Cliente {cliente.nombre} {cliente.apellido} no tiene correo definido")
+
+            # if metodo in ["whatsapp", "ambos"]:
+            #     if cliente.whatsapp:
+            #         self.enviar_por_whatsapp(cliente.whatsapp, resumen)
+            #     else:
+            #         print(f"[WARN] Cliente {cliente.nombre} {cliente.apellido} no tiene WhatsApp definido")
 
             enviados.append(cliente.nombre + " " + cliente.apellido)
 
@@ -111,10 +119,21 @@ Gracias por su confianza.
         return resumen.strip()
 
 
-    # Métodos simulados de envío (reemplazarlos por los reales)
-    def enviar_por_mail(self, correo, mensaje):
-        print(f"[MAIL] Enviando a {correo}:\n{mensaje}\n{'-'*60}")
+    # Envio de mails
+    def enviar_por_mail(self, destinatario:str, resumen:str, background_tasks: BackgroundTasks):
+        message = MessageSchema(
+            subject="Resumen mensual de pagos",
+            recipients=[destinatario],
+            body=resumen,
+            subtype=MessageType.plain  # podés usar html más adelante
+        )
+        background_tasks.add_task(
+            fast_mail.send_message,
+            message
+        )
 
-    def enviar_por_whatsapp(self, numero, mensaje):
-        print(f"[WHATSAPP] Enviando a {numero}:\n{mensaje}\n{'-'*60}")
+        # print(f"[MAIL] Enviando a {correo}:\n{mensaje}\n{'-'*60}")
+
+    # def enviar_por_whatsapp(self, numero, mensaje):
+    #     print(f"[WHATSAPP] Enviando a {numero}:\n{mensaje}\n{'-'*60}")
 

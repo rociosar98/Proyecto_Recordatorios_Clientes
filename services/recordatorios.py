@@ -8,6 +8,10 @@ from core.enums import TipoRecordatorio, MetodoAviso, EstadoPago
 from models.clientes import Clientes as ClientesModel
 from models.servicios import Servicios as ServiciosModel
 from models.listado_mensual import ListadoMensual
+from fastapi import BackgroundTasks
+from fastapi_mail import MessageSchema, MessageType
+from core.mail_config import fast_mail
+
 
 class RecordatoriosService:
     def __init__(self, db: Session) -> None:
@@ -106,7 +110,7 @@ class RecordatoriosService:
             #     continue
 
 
-    def enviar_recordatorios(self):
+    def enviar_recordatorios(self, background_tasks: BackgroundTasks):
         """
         Envía todos los recordatorios pendientes.
         Retorna un dict con detalles de envío.
@@ -163,11 +167,16 @@ class RecordatoriosService:
             #     f"Por favor, regularice su situación de pago. Muchas gracias."
             # )
 
-            if rec.metodo_envio in [MetodoAviso.mail, MetodoAviso.ambos]:
-                print(f"[MAIL] Enviando a {cliente.correo}:\n{msg}\n{'-'*50}")
+            if rec.metodo_envio in [MetodoAviso.mail, MetodoAviso.ambos] and cliente.correo:
+                self.enviar_mail_recordatorio(
+                destinatario=cliente.correo,
+                mensaje=msg,
+                background_tasks=background_tasks
+            )
+                # print(f"[MAIL] Enviando a {cliente.correo}:\n{msg}\n{'-'*50}")
 
-            if rec.metodo_envio in [MetodoAviso.whatsapp, MetodoAviso.ambos]:
-                print(f"[WHATSAPP] Enviando a {cliente.whatsapp}:\n{msg}\n{'-'*50}")
+            # if rec.metodo_envio in [MetodoAviso.whatsapp, MetodoAviso.ambos]:
+            #     print(f"[WHATSAPP] Enviando a {cliente.whatsapp}:\n{msg}\n{'-'*50}")
 
             rec.enviado = True
             detalles_envio.append(f"{cliente.nombre} {cliente.apellido} - {rec.tipo_recordatorio.value}")
@@ -175,6 +184,18 @@ class RecordatoriosService:
         self.db.commit()
         print(f"📨 Enviados {len(detalles_envio)} recordatorios (uno por cliente).")
         return detalles_envio
+    
+    def enviar_mail_recordatorio(self, destinatario: str, mensaje: str, background_tasks: BackgroundTasks):
+        message = MessageSchema(
+            subject="Recordatorio de pago",
+            recipients=[destinatario],
+            body=mensaje,
+            subtype=MessageType.plain
+        )
+        background_tasks.add_task(
+            fast_mail.send_message,
+            message
+        )
 
 
     # -----------------------------

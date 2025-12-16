@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from fastapi.responses import JSONResponse
 from typing import Optional, List
 from database import get_database_session
@@ -19,6 +19,7 @@ recordatorios_router = APIRouter()
 
 @recordatorios_router.post("/enviar-manual", tags=["Recordatorios"], status_code=200)
 def enviar_recordatorios_manualmente(
+    background_tasks: BackgroundTasks,
     fecha: str = Query(..., description="Fecha simulada en formato YYYY-MM-DD"),
     db: Session = Depends(get_database_session)
 ):
@@ -56,7 +57,7 @@ def enviar_recordatorios_manualmente(
     nuevos = service.generar_recordatorios_desde_listado(fecha_simulada)
 
     # Enviar todos los pendientes (incluso los recién creados)
-    resultado_envio = service.enviar_recordatorios()
+    resultado_envio = service.enviar_recordatorios(background_tasks)
 
     return {
         "fecha_simulada": fecha_simulada.isoformat(),

@@ -6,7 +6,7 @@ from typing import List, Optional
 from core.enums import EstadoPago
 from sqlalchemy import func
 from fastapi_mail import FastMail, MessageSchema, MessageType
-from core.mail_config import conf, fast_mail
+from core.mail_config import fast_mail
 from fastapi import BackgroundTasks
 
 
@@ -77,22 +77,22 @@ class PagosService:
     ¡Gracias por tu pago!
     """
         
-        message = MessageSchema(
-            subject="Confirmación de Pago",
-            recipients=[cliente.correo],
-            body=mensaje,
-            subtype=MessageType.plain  # o html si querés usar HTML
-        )
+        # message = MessageSchema(
+        #     subject="Confirmación de Pago",
+        #     recipients=[cliente.correo],
+        #     body=mensaje,
+        #     subtype=MessageType.plain  # o html si querés usar HTML
+        # )
 
-        if background_tasks:
-            background_tasks.add_task(fast_mail.send_message, message)
+        # if background_tasks:
+        #     background_tasks.add_task(fast_mail.send_message, message)
 
         medio_contacto = cliente.metodo_aviso
 
         if medio_contacto in ["email", "ambos"] and background_tasks:
             self.enviar_email(destinatario=cliente.correo, asunto="Confirmación de Pago", cuerpo=mensaje, background_tasks=background_tasks)
-        if medio_contacto in ["whatsapp", "ambos"]:
-            self.enviar_whatsapp(numero=cliente.whatsapp, mensaje=mensaje)
+        # if medio_contacto in ["whatsapp", "ambos"]:
+        #     self.enviar_whatsapp(numero=cliente.whatsapp, mensaje=mensaje)
 
     def enviar_email(self, destinatario: str, asunto: str, cuerpo: str, background_tasks: BackgroundTasks):
         message = MessageSchema(
